@@ -10,12 +10,21 @@
 
 <header class="header">
     <div class="header-content">
-        <h1>Controle de Vencimentos - Alugueis</h1>
-        <p class="header-sub">Consulta de imoveis, inquilinos e vencimentos</p>
+        <div>
+            <h1>Controle de Vencimentos - Alugueis</h1>
+            <p class="header-sub">Consulta de imoveis, inquilinos e vencimentos</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-header" onclick="window.print()" title="Imprimir">&#128424; Imprimir</button>
+            <button class="btn-header" id="themeToggle" onclick="toggleTheme()" title="Alternar tema">&#9790; Modo Escuro</button>
+        </div>
     </div>
 </header>
 
 <main class="main">
+
+    <!-- ALERTAS DE VENCIMENTO -->
+    <div id="alertasVencimento" class="alertas-container"></div>
 
     <!-- FOTO DOS IMOVEIS -->
     <section class="card photo-card">
@@ -62,7 +71,7 @@
                         <td class="cell-valor">R$ 630,00</td>
                         <td class="text-center">14</td>
                         <td>Luis Felipe da Silva Medeiros</td>
-                        <td class="cell-cpf">134.162.744-66</td>
+                        <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="134.162.744-66" data-visible="false" title="Clique para revelar">134.***.***-66</span></td>
                         <td>13/11/2025</td>
                         <td>13/11/2026</td>
                         <td><span class="badge badge-residencial">Residencial</span></td>
@@ -73,7 +82,7 @@
                         <td class="cell-valor">R$ 720,00</td>
                         <td class="text-center">10</td>
                         <td>Pedro Elandro Holanda Granjeiro</td>
-                        <td class="cell-cpf">104.295.114-42</td>
+                        <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="104.295.114-42" data-visible="false" title="Clique para revelar">104.***.***-42</span></td>
                         <td>04/04/2023</td>
                         <td>04/04/2026</td>
                         <td><span class="badge badge-comercial">Comercial</span></td>
@@ -84,7 +93,7 @@
                         <td class="cell-valor">R$ 306,00</td>
                         <td class="text-center">5</td>
                         <td>Humberto de Oliveira Nunes <span class="nota-ref">*</span></td>
-                        <td class="cell-cpf">653.396.814-91</td>
+                        <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="653.396.814-91" data-visible="false" title="Clique para revelar">653.***.***-91</span></td>
                         <td>30/06/2025</td>
                         <td>30/06/2027</td>
                         <td><span class="badge badge-residencial">Residencial</span></td>
@@ -100,6 +109,7 @@
                 </tfoot>
             </table>
         </div>
+        <p class="cpf-hint">* Clique no CPF para revelar/ocultar o numero completo</p>
     </section>
 
     <!-- OBSERVACOES -->
@@ -111,6 +121,7 @@
                 <div>
                     <strong>Casa 16A - Humberto de Oliveira Nunes</strong>
                     <p>Fizeram uma reforma (troca de pisos quebrados, reboco do teto e colocacao de piso na area de servico; substituicao do piso no quarto de taco); desconto de 50% do aluguel por um ano (ate 30/06/2026); IPTU e agua inclusos no aluguel.</p>
+                    <div class="desconto-countdown" id="descontoCountdown"></div>
                 </div>
             </div>
             <div class="obs-item obs-atraso">
@@ -140,7 +151,7 @@
                 <div class="contrato-detalhes">
                     <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 14</span></div>
                     <div class="detalhe"><span class="detalhe-label">Contrato</span><span>13/11/2025 a 13/11/2026</span></div>
-                    <div class="detalhe"><span class="detalhe-label">CPF</span><span>134.162.744-66</span></div>
+                    <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="134.162.744-66" data-visible="false" title="Clique para revelar">134.***.***-66</span></div>
                 </div>
                 <div class="contrato-barra">
                     <div class="barra-bg"><div class="barra-fill" id="barra-15"></div></div>
@@ -165,7 +176,7 @@
                 <div class="contrato-detalhes">
                     <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 10</span></div>
                     <div class="detalhe"><span class="detalhe-label">Contrato</span><span>04/04/2023 a 04/04/2026</span></div>
-                    <div class="detalhe"><span class="detalhe-label">CPF</span><span>104.295.114-42</span></div>
+                    <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="104.295.114-42" data-visible="false" title="Clique para revelar">104.***.***-42</span></div>
                 </div>
                 <div class="contrato-barra">
                     <div class="barra-bg"><div class="barra-fill" id="barra-16"></div></div>
@@ -190,7 +201,7 @@
                 <div class="contrato-detalhes">
                     <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 5</span></div>
                     <div class="detalhe"><span class="detalhe-label">Contrato</span><span>30/06/2025 a 30/06/2027</span></div>
-                    <div class="detalhe"><span class="detalhe-label">CPF</span><span>653.396.814-91</span></div>
+                    <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="653.396.814-91" data-visible="false" title="Clique para revelar">653.***.***-91</span></div>
                     <div class="detalhe"><span class="detalhe-label">Desconto ate</span><span>30/06/2026</span></div>
                 </div>
                 <div class="contrato-barra">
@@ -208,15 +219,22 @@
 
     <!-- EXTRATO -->
     <section class="card">
-        <h2 class="card-title">Extrato de Poupanca - Fevereiro/2025</h2>
-        <div class="extrato-resumo">
+        <div class="card-header-row">
+            <h2 class="card-title" style="margin-bottom:0">Extrato de Poupanca</h2>
+            <div class="extrato-nav">
+                <button class="btn-nav" onclick="changeExtrato(-1)">&#9664;</button>
+                <span id="extratoMesLabel">Fevereiro/2025</span>
+                <button class="btn-nav" onclick="changeExtrato(1)">&#9654;</button>
+            </div>
+        </div>
+        <div class="extrato-resumo" id="extratoResumo">
             <div class="extrato-item">
                 <span class="extrato-label">Saldo Anterior</span>
-                <span class="extrato-valor">R$ 5.081,08</span>
+                <span class="extrato-valor" id="extSaldoAnt">R$ 5.081,08</span>
             </div>
             <div class="extrato-item">
                 <span class="extrato-label">Disponivel</span>
-                <span class="extrato-valor destaque">R$ 5.447,72</span>
+                <span class="extrato-valor destaque" id="extDisponivel">R$ 5.447,72</span>
             </div>
         </div>
         <div class="table-wrap">
@@ -228,33 +246,7 @@
                         <th class="text-right">Valor</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td class="text-center">03</td>
-                        <td>Reajuste Monetario - BACEN</td>
-                        <td class="text-right valor-positivo">0,12</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">03</td>
-                        <td>Juros</td>
-                        <td class="text-right valor-positivo">0,33</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">04</td>
-                        <td>Pagamento Conta De Agua</td>
-                        <td class="text-right valor-negativo">- 672,81</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">04</td>
-                        <td>Pix - Recebido 04/02 22:07 03502352445<br><small class="text-muted">DENIS ULISSE N</small></td>
-                        <td class="text-right valor-positivo">312,00</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">12</td>
-                        <td>Pix - Recebido 12/02 14:25 00003502352445<br><small class="text-muted">DENIS ULISS</small></td>
-                        <td class="text-right valor-positivo">727,00</td>
-                    </tr>
-                </tbody>
+                <tbody id="extratoBody"></tbody>
             </table>
         </div>
     </section>
@@ -263,6 +255,7 @@
 
 <footer class="footer">
     <p>Controle de Vencimentos - Alugueis &middot; Pagina de consulta</p>
+    <p class="footer-update">Ultima atualizacao: <strong id="lastUpdate"></strong></p>
 </footer>
 
 <script src="app.js"></script>
