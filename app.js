@@ -1,6 +1,7 @@
 // ===== CONFIG =====
 const SPREADSHEET_ID = '14JDU49MVYXus9zmrwNWj_YZ2Ze0LjLAkq_GUBC7V168';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
+const EXTRATO_CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Extrato`;
 
 const MESES = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
@@ -11,22 +12,23 @@ const FALLBACK_IMOVEIS = [
     { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: '' }
 ];
 
-const extratos = {
-    '2025-02': {
+const FALLBACK_EXTRATOS = {
+    '2026-02': {
         saldoAnterior: 5081.08,
         lancamentos: [
             { dia: 3, historico: 'Reajuste Monetario - BACEN', valor: 0.12 },
             { dia: 3, historico: 'Juros', valor: 0.33 },
             { dia: 4, historico: 'Pagamento Conta De Agua', valor: -672.81 },
-            { dia: 4, historico: 'Pix - Recebido 04/02 22:07 03502352445', detalhe: 'DENIS ULISSE N', valor: 312.00 },
-            { dia: 12, historico: 'Pix - Recebido 12/02 14:25 00003502352445', detalhe: 'DENIS ULISS', valor: 727.00 }
+            { dia: 4, historico: 'Pix - Recebido 04/02 22:07', detalhe: 'DENIS ULISSE N', valor: 312.00 },
+            { dia: 12, historico: 'Pix - Recebido 12/02 14:25', detalhe: 'DENIS ULISSE', valor: 727.00 }
         ]
     }
 };
 
-let extratoMes = 1;
-let extratoAno = 2025;
+let extratoMes = 1; // 0=Jan, 1=Fev
+let extratoAno = 2026;
 let imoveisData = [];
+let extratosData = {};
 
 // ===== CSV PARSER =====
 function parseCSV(text) {
@@ -70,14 +72,28 @@ function parseCSV(text) {
     return rows;
 }
 
+// Converte valor em formato brasileiro (R$ 1.656,00) ou decimal (672.81) para float
 function parseValor(str) {
     if (!str) return 0;
-    return parseFloat(str.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+    let s = str.replace('R$', '').trim();
+    // Se tem virgula, e formato brasileiro (1.656,00)
+    if (s.includes(',')) {
+        return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
+    }
+    // Formato com pontos: "5.081.08" -> verificar se tem multiplos pontos
+    const dots = s.match(/\./g);
+    if (dots && dots.length > 1) {
+        // Multiplos pontos: todos exceto o ultimo sao separador de milhar
+        const lastDot = s.lastIndexOf('.');
+        const intPart = s.substring(0, lastDot).replace(/\./g, '');
+        const decPart = s.substring(lastDot + 1);
+        return parseFloat(intPart + '.' + decPart) || 0;
+    }
+    return parseFloat(s) || 0;
 }
 
 function parseImoveis(rows) {
     const imoveis = [];
-    // Pula header (row 0), observacao esta na row 0 col 9+
     const obsGeral = (rows[0] && rows[0][9]) ? rows[0][9] : '';
 
     for (let i = 1; i < rows.length; i++) {
@@ -95,7 +111,6 @@ function parseImoveis(rows) {
         const status = (r[8] || '').trim();
         const observacao = (r[9] || '').trim();
 
-        // Remove * do nome do inquilino (indicador de observacao)
         const temNota = inquilino.endsWith('*');
         if (temNota) inquilino = inquilino.slice(0, -1).trim();
 
@@ -104,26 +119,99 @@ function parseImoveis(rows) {
     return imoveis;
 }
 
+// ===== PARSE EXTRATO =====
+function parseExtratos(rows) {
+    const result = {};
+
+    for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const mes = parseInt(r[0]);
+        const ano = parseInt(r[1]);
+        if (!mes || !ano) continue;
+
+        const key = ano + '-' + String(mes).padStart(2, '0');
+        const saldoStr = (r[2] || '').trim();
+        const dia = parseInt(r[3]) || 0;
+        const historico = (r[4] || '').trim();
+        const detalhe = (r[5] || '').trim();
+        const valor = parseValor(r[6]);
+
+        if (!historico && !dia) continue;
+
+        if (!result[key]) {
+            result[key] = { saldoAnterior: 0, lancamentos: [] };
+        }
+
+        if (saldoStr) {
+            result[key].saldoAnterior = parseValor(saldoStr);
+        }
+
+        result[key].lancamentos.push({
+            dia,
+            historico,
+            detalhe: detalhe || null,
+            valor
+        });
+    }
+
+    return result;
+}
+
 // ===== FETCH PLANILHA =====
 async function fetchPlanilha() {
     const loading = document.getElementById('loadingOverlay');
+    let onlineImoveis = false;
+    let onlineExtrato = false;
+
     try {
         if (loading) loading.style.display = 'flex';
 
-        const resp = await fetch(CSV_URL);
-        if (!resp.ok) throw new Error('Erro ao buscar planilha');
+        // Busca imoveis e extrato em paralelo
+        const [imoveisResp, extratoResp] = await Promise.allSettled([
+            fetch(CSV_URL).then(r => { if (!r.ok) throw new Error(); return r.text(); }),
+            fetch(EXTRATO_CSV_URL).then(r => { if (!r.ok) throw new Error(); return r.text(); })
+        ]);
 
-        const text = await resp.text();
-        const rows = parseCSV(text);
-        imoveisData = parseImoveis(rows);
+        // Processa imoveis
+        if (imoveisResp.status === 'fulfilled') {
+            const rows = parseCSV(imoveisResp.value);
+            const parsed = parseImoveis(rows);
+            if (parsed.length > 0) {
+                imoveisData = parsed;
+                onlineImoveis = true;
+            }
+        }
+        if (!onlineImoveis) {
+            imoveisData = FALLBACK_IMOVEIS;
+        }
 
-        if (imoveisData.length === 0) throw new Error('Planilha vazia');
+        // Processa extrato
+        if (extratoResp.status === 'fulfilled') {
+            const rows = parseCSV(extratoResp.value);
+            const parsed = parseExtratos(rows);
+            if (Object.keys(parsed).length > 0) {
+                extratosData = parsed;
+                onlineExtrato = true;
+                // Navega para o mes mais recente do extrato
+                const keys = Object.keys(parsed).sort();
+                if (keys.length > 0) {
+                    const last = keys[keys.length - 1];
+                    const parts = last.split('-');
+                    extratoAno = parseInt(parts[0]);
+                    extratoMes = parseInt(parts[1]) - 1;
+                }
+            }
+        }
+        if (!onlineExtrato) {
+            extratosData = FALLBACK_EXTRATOS;
+        }
 
         renderAll();
-        showDataSource(true);
+        showDataSource(onlineImoveis && onlineExtrato);
     } catch (err) {
-        console.warn('Erro ao carregar planilha, usando dados locais:', err);
+        console.warn('Erro ao carregar planilha:', err);
         imoveisData = FALLBACK_IMOVEIS;
+        extratosData = FALLBACK_EXTRATOS;
         renderAll();
         showDataSource(false);
     } finally {
@@ -257,7 +345,6 @@ function renderObservacoes() {
     const container = document.getElementById('obsContainer');
     const items = [];
 
-    // Busca imovel com desconto que tenha observacao
     imoveisData.forEach(im => {
         if (im.temNota && im.obsGeral) {
             items.push(`<div class="obs-item obs-desconto">
@@ -271,7 +358,6 @@ function renderObservacoes() {
         }
     });
 
-    // Imoveis em atraso
     imoveisData.forEach(im => {
         if (isAtrasado(im)) {
             items.push(`<div class="obs-item obs-atraso">
@@ -344,7 +430,6 @@ function renderContratos() {
         </div>`;
     }).join('');
 
-    // Calcula barras apos renderizar
     imoveisData.forEach(im => {
         const barraId = 'barra-' + im.casa.toLowerCase();
         const diasId = 'dias-' + im.casa.toLowerCase();
@@ -447,7 +532,7 @@ function renderExtrato() {
     const label = document.getElementById('extratoMesLabel');
     label.textContent = MESES[extratoMes] + '/' + extratoAno;
 
-    const ext = extratos[key];
+    const ext = extratosData[key];
     const body = document.getElementById('extratoBody');
     const saldoAnt = document.getElementById('extSaldoAnt');
     const disponivel = document.getElementById('extDisponivel');
