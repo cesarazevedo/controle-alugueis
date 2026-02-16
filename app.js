@@ -19,9 +19,9 @@ let extratoAno = 2025;
 
 // ===== IMOVEIS (para alertas) =====
 const imoveis = [
-    { casa: '15', inquilino: 'Luis Felipe da Silva Medeiros', dia: 14, valor: 630 },
-    { casa: '16', inquilino: 'Pedro Elandro Holanda Granjeiro', dia: 10, valor: 720 },
-    { casa: '16A', inquilino: 'Humberto de Oliveira Nunes', dia: 5, valor: 306 }
+    { casa: '15', inquilino: 'Luis Felipe da Silva Medeiros', dia: 14, valor: 630, emAtraso: false },
+    { casa: '16', inquilino: 'Pedro Elandro Holanda Granjeiro', dia: 10, valor: 720, emAtraso: true },
+    { casa: '16A', inquilino: 'Humberto de Oliveira Nunes', dia: 5, valor: 306, emAtraso: false }
 ];
 
 // ===== DARK MODE =====
@@ -91,35 +91,19 @@ function calcBarra(inicioStr, fimStr, barraId, diasId) {
 // ===== ALERTAS DE VENCIMENTO =====
 function renderAlertas() {
     const container = document.getElementById('alertasVencimento');
-    const hoje = new Date();
-    const diaHoje = hoje.getDate();
     const alertas = [];
 
     imoveis.forEach(im => {
-        const diaVenc = im.dia;
-        const diff = diaVenc - diaHoje;
-
-        if (diff > 0 && diff <= 5) {
-            alertas.push({
-                urgente: diff <= 2,
-                texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${im.valor.toFixed(2).replace('.',',')}</strong> vence em <strong>${diff} dia${diff > 1 ? 's' : ''}</strong> (dia ${diaVenc}) - ${im.inquilino}`
-            });
-        } else if (diff === 0) {
-            alertas.push({
-                urgente: true,
-                texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${im.valor.toFixed(2).replace('.',',')}</strong> vence <strong>HOJE</strong> - ${im.inquilino}`
-            });
-        } else if (diff < 0 && diff >= -3) {
-            alertas.push({
-                urgente: true,
-                texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${im.valor.toFixed(2).replace('.',',')}</strong> venceu ha <strong>${Math.abs(diff)} dia${Math.abs(diff) > 1 ? 's' : ''}</strong> (dia ${diaVenc}) - ${im.inquilino}`
-            });
-        }
+        if (!im.emAtraso) return;
+        alertas.push({
+            urgente: true,
+            texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${im.valor.toFixed(2).replace('.',',')}</strong> com pagamento <strong>em atraso</strong> (vencimento dia ${im.dia}) - ${im.inquilino}`
+        });
     });
 
     container.innerHTML = alertas.map(a => `
-        <div class="alerta ${a.urgente ? 'alerta-urgente' : ''}">
-            <span class="alerta-icon">${a.urgente ? '&#9888;' : '&#128276;'}</span>
+        <div class="alerta alerta-urgente">
+            <span class="alerta-icon">&#9888;</span>
             <span class="alerta-text">${a.texto}</span>
         </div>
     `).join('');
