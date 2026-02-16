@@ -10,382 +10,260 @@
 
 <header class="header">
     <div class="header-content">
-        <div class="header-left">
-            <h1>Controle de Alugueis</h1>
-            <p class="header-sub">Gerenciamento de imoveis e vencimentos</p>
-        </div>
-        <div class="header-right">
-            <div class="header-stat">
-                <span class="stat-label">Receita Mensal</span>
-                <span class="stat-value" id="totalReceita">R$ 0,00</span>
-            </div>
-            <div class="header-stat">
-                <span class="stat-label">Imoveis Ativos</span>
-                <span class="stat-value" id="totalImoveis">0</span>
-            </div>
-        </div>
+        <h1>Controle de Vencimentos - Alugueis</h1>
+        <p class="header-sub">Consulta de imoveis, inquilinos e vencimentos</p>
     </div>
 </header>
 
-<nav class="nav">
-    <button class="nav-btn active" onclick="showPage('dashboard', this)">Dashboard</button>
-    <button class="nav-btn" onclick="showPage('imoveis', this)">Imoveis</button>
-    <button class="nav-btn" onclick="showPage('pagamentos', this)">Pagamentos</button>
-    <button class="nav-btn" onclick="showPage('extrato', this)">Extrato</button>
-    <button class="nav-btn" onclick="showPage('config', this)">Configuracoes</button>
-</nav>
-
 <main class="main">
 
-    <!-- ===== DASHBOARD ===== -->
-    <section id="page-dashboard" class="page active">
-        <div class="cards-grid">
-            <div class="info-card green">
-                <div class="info-icon">$</div>
-                <div class="info-data">
-                    <span class="info-label">Receita Prevista</span>
-                    <span class="info-value" id="dashReceita">R$ 0,00</span>
-                </div>
-            </div>
-            <div class="info-card blue">
-                <div class="info-icon">&#10003;</div>
-                <div class="info-data">
-                    <span class="info-label">Recebido no Mes</span>
-                    <span class="info-value" id="dashRecebido">R$ 0,00</span>
-                </div>
-            </div>
-            <div class="info-card orange">
-                <div class="info-icon">!</div>
-                <div class="info-data">
-                    <span class="info-label">Pendente</span>
-                    <span class="info-value" id="dashPendente">R$ 0,00</span>
-                </div>
-            </div>
-            <div class="info-card purple">
-                <div class="info-icon">&#9783;</div>
-                <div class="info-data">
-                    <span class="info-label">Saldo Conta</span>
-                    <span class="info-value" id="dashSaldo">R$ 0,00</span>
-                </div>
-            </div>
+    <!-- FOTO DOS IMOVEIS -->
+    <section class="card photo-card">
+        <img src="casa_0.png" alt="Foto das Casas 15, 16 e 16A" class="photo-imoveis">
+    </section>
+
+    <!-- RESUMO -->
+    <section class="summary-row">
+        <div class="summary-item green">
+            <span class="summary-label">Receita Mensal Prevista</span>
+            <span class="summary-value">R$ 1.656,00</span>
         </div>
-
-        <div class="section-row">
-            <div class="card flex-2">
-                <div class="card-header">
-                    <h2>Proximos Vencimentos</h2>
-                    <span class="month-selector">
-                        <select id="dashMonth" onchange="renderDashboard()"></select>
-                        <select id="dashYear" onchange="renderDashboard()"></select>
-                    </span>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Casa</th>
-                                <th>Inquilino</th>
-                                <th class="text-right">Valor</th>
-                                <th class="text-center">Vencimento</th>
-                                <th class="text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashVencimentos"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card flex-1">
-                <div class="card-header">
-                    <h2>Contratos</h2>
-                </div>
-                <div id="dashContratos"></div>
-            </div>
+        <div class="summary-item blue">
+            <span class="summary-label">Imoveis Alugados</span>
+            <span class="summary-value">3</span>
         </div>
+        <div class="summary-item orange">
+            <span class="summary-label">Pagamentos em Atraso</span>
+            <span class="summary-value">1</span>
+        </div>
+    </section>
 
-        <div class="card">
-            <div class="card-header">
-                <h2>Historico de Recebimentos (12 meses)</h2>
+    <!-- TABELA PRINCIPAL -->
+    <section class="card">
+        <h2 class="card-title">Quadro de Imoveis e Inquilinos</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Casa</th>
+                        <th>Valor do Aluguel</th>
+                        <th>Dia de Pagamento</th>
+                        <th>Inquilino</th>
+                        <th>CPF</th>
+                        <th>Inicio</th>
+                        <th>Fim</th>
+                        <th>Finalidade</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="cell-casa"><strong>15</strong></td>
+                        <td class="cell-valor">R$ 630,00</td>
+                        <td class="text-center">14</td>
+                        <td>Luis Felipe da Silva Medeiros</td>
+                        <td class="cell-cpf">134.162.744-66</td>
+                        <td>13/11/2025</td>
+                        <td>13/11/2026</td>
+                        <td><span class="badge badge-residencial">Residencial</span></td>
+                        <td><span class="badge badge-ok">Em dia</span></td>
+                    </tr>
+                    <tr class="row-atrasado">
+                        <td class="cell-casa"><strong>16</strong></td>
+                        <td class="cell-valor">R$ 720,00</td>
+                        <td class="text-center">10</td>
+                        <td>Pedro Elandro Holanda Granjeiro</td>
+                        <td class="cell-cpf">104.295.114-42</td>
+                        <td>04/04/2023</td>
+                        <td>04/04/2026</td>
+                        <td><span class="badge badge-comercial">Comercial</span></td>
+                        <td><span class="badge badge-atrasado">Em atraso</span></td>
+                    </tr>
+                    <tr>
+                        <td class="cell-casa"><strong>16A</strong></td>
+                        <td class="cell-valor">R$ 306,00</td>
+                        <td class="text-center">5</td>
+                        <td>Humberto de Oliveira Nunes <span class="nota-ref">*</span></td>
+                        <td class="cell-cpf">653.396.814-91</td>
+                        <td>30/06/2025</td>
+                        <td>30/06/2027</td>
+                        <td><span class="badge badge-residencial">Residencial</span></td>
+                        <td><span class="badge badge-desconto">Com desconto</span></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="cell-valor"><strong>R$ 1.656,00</strong></td>
+                        <td colspan="7"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </section>
+
+    <!-- OBSERVACOES -->
+    <section class="card">
+        <h2 class="card-title">Observacoes</h2>
+        <div class="obs-list">
+            <div class="obs-item obs-desconto">
+                <span class="obs-icon">*</span>
+                <div>
+                    <strong>Casa 16A - Humberto de Oliveira Nunes</strong>
+                    <p>Fizeram uma reforma (troca de pisos quebrados, reboco do teto e colocacao de piso na area de servico; substituicao do piso no quarto de taco); desconto de 50% do aluguel por um ano (ate 30/06/2026); IPTU e agua inclusos no aluguel.</p>
+                </div>
             </div>
-            <div class="chart-area" id="dashChart"></div>
-            <div class="chart-legend">
-                <span class="legend-item"><span class="legend-dot green-bg"></span> Recebido</span>
-                <span class="legend-item"><span class="legend-dot orange-bg"></span> Pendente</span>
+            <div class="obs-item obs-atraso">
+                <span class="obs-icon">!</span>
+                <div>
+                    <strong>Casa 16 - Pedro Elandro Holanda Granjeiro</strong>
+                    <p>Aluguel com pagamento em atraso.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== IMOVEIS ===== -->
-    <section id="page-imoveis" class="page">
-        <div class="card">
-            <div class="card-header">
-                <h2>Imoveis Cadastrados</h2>
-                <button class="btn btn-primary" onclick="openImovelModal()">+ Novo Imovel</button>
+    <!-- DETALHES DOS CONTRATOS -->
+    <section class="card">
+        <h2 class="card-title">Situacao dos Contratos</h2>
+        <div class="contratos-grid">
+
+            <div class="contrato-card">
+                <div class="contrato-header">
+                    <div class="contrato-casa">15</div>
+                    <div class="contrato-info">
+                        <strong>Luis Felipe da Silva Medeiros</strong>
+                        <span class="contrato-tipo badge badge-residencial">Residencial</span>
+                    </div>
+                    <div class="contrato-valor">R$ 630,00<small>/mes</small></div>
+                </div>
+                <div class="contrato-detalhes">
+                    <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 14</span></div>
+                    <div class="detalhe"><span class="detalhe-label">Contrato</span><span>13/11/2025 a 13/11/2026</span></div>
+                    <div class="detalhe"><span class="detalhe-label">CPF</span><span>134.162.744-66</span></div>
+                </div>
+                <div class="contrato-barra">
+                    <div class="barra-bg"><div class="barra-fill" id="barra-15"></div></div>
+                    <div class="barra-labels">
+                        <span>13/11/2025</span>
+                        <span id="dias-15"></span>
+                        <span>13/11/2026</span>
+                    </div>
+                </div>
             </div>
-            <div id="imoveisList"></div>
+
+            <div class="contrato-card contrato-atrasado">
+                <div class="contrato-header">
+                    <div class="contrato-casa atrasado">16</div>
+                    <div class="contrato-info">
+                        <strong>Pedro Elandro Holanda Granjeiro</strong>
+                        <span class="contrato-tipo badge badge-comercial">Comercial</span>
+                        <span class="badge badge-atrasado" style="margin-left:6px">Em atraso</span>
+                    </div>
+                    <div class="contrato-valor">R$ 720,00<small>/mes</small></div>
+                </div>
+                <div class="contrato-detalhes">
+                    <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 10</span></div>
+                    <div class="detalhe"><span class="detalhe-label">Contrato</span><span>04/04/2023 a 04/04/2026</span></div>
+                    <div class="detalhe"><span class="detalhe-label">CPF</span><span>104.295.114-42</span></div>
+                </div>
+                <div class="contrato-barra">
+                    <div class="barra-bg"><div class="barra-fill" id="barra-16"></div></div>
+                    <div class="barra-labels">
+                        <span>04/04/2023</span>
+                        <span id="dias-16"></span>
+                        <span>04/04/2026</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contrato-card contrato-desconto">
+                <div class="contrato-header">
+                    <div class="contrato-casa desconto">16A</div>
+                    <div class="contrato-info">
+                        <strong>Humberto de Oliveira Nunes</strong>
+                        <span class="contrato-tipo badge badge-residencial">Residencial</span>
+                        <span class="badge badge-desconto" style="margin-left:6px">50% desconto</span>
+                    </div>
+                    <div class="contrato-valor">R$ 306,00<small>/mes</small></div>
+                </div>
+                <div class="contrato-detalhes">
+                    <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 5</span></div>
+                    <div class="detalhe"><span class="detalhe-label">Contrato</span><span>30/06/2025 a 30/06/2027</span></div>
+                    <div class="detalhe"><span class="detalhe-label">CPF</span><span>653.396.814-91</span></div>
+                    <div class="detalhe"><span class="detalhe-label">Desconto ate</span><span>30/06/2026</span></div>
+                </div>
+                <div class="contrato-barra">
+                    <div class="barra-bg"><div class="barra-fill" id="barra-16a"></div></div>
+                    <div class="barra-labels">
+                        <span>30/06/2025</span>
+                        <span id="dias-16a"></span>
+                        <span>30/06/2027</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
-    <!-- ===== PAGAMENTOS ===== -->
-    <section id="page-pagamentos" class="page">
-        <div class="card">
-            <div class="card-header">
-                <h2>Controle de Pagamentos</h2>
-                <span class="month-selector">
-                    <select id="pagMonth" onchange="renderPagamentos()"></select>
-                    <select id="pagYear" onchange="renderPagamentos()"></select>
-                </span>
+    <!-- EXTRATO -->
+    <section class="card">
+        <h2 class="card-title">Extrato de Poupanca - Fevereiro/2025</h2>
+        <div class="extrato-resumo">
+            <div class="extrato-item">
+                <span class="extrato-label">Saldo Anterior</span>
+                <span class="extrato-valor">R$ 5.081,08</span>
             </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Casa</th>
-                            <th>Inquilino</th>
-                            <th class="text-right">Valor Aluguel</th>
-                            <th class="text-center">Dia Venc.</th>
-                            <th class="text-center">Status</th>
-                            <th>Data Pagamento</th>
-                            <th class="text-right">Valor Pago</th>
-                            <th>Obs</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="pagBody"></tbody>
-                    <tfoot id="pagFoot"></tfoot>
-                </table>
+            <div class="extrato-item">
+                <span class="extrato-label">Disponivel</span>
+                <span class="extrato-valor destaque">R$ 5.447,72</span>
             </div>
         </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h2>Historico Completo</h2>
-                <div class="filter-group">
-                    <select id="histFilterCasa" onchange="renderHistorico()">
-                        <option value="">Todas as casas</option>
-                    </select>
-                </div>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Mes/Ano</th>
-                            <th>Casa</th>
-                            <th>Inquilino</th>
-                            <th class="text-right">Valor</th>
-                            <th>Data Pgto</th>
-                            <th class="text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="histBody"></tbody>
-                </table>
-            </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="text-center">Dia</th>
+                        <th>Historico</th>
+                        <th class="text-right">Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">03</td>
+                        <td>Reajuste Monetario - BACEN</td>
+                        <td class="text-right valor-positivo">0,12</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">03</td>
+                        <td>Juros</td>
+                        <td class="text-right valor-positivo">0,33</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">04</td>
+                        <td>Pagamento Conta De Agua</td>
+                        <td class="text-right valor-negativo">- 672,81</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">04</td>
+                        <td>Pix - Recebido 04/02 22:07 03502352445<br><small class="text-muted">DENIS ULISSE N</small></td>
+                        <td class="text-right valor-positivo">312,00</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">12</td>
+                        <td>Pix - Recebido 12/02 14:25 00003502352445<br><small class="text-muted">DENIS ULISS</small></td>
+                        <td class="text-right valor-positivo">727,00</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 
-    <!-- ===== EXTRATO ===== -->
-    <section id="page-extrato" class="page">
-        <div class="cards-grid cols-3">
-            <div class="info-card blue">
-                <div class="info-data">
-                    <span class="info-label">Saldo Anterior</span>
-                    <span class="info-value" id="extSaldoAnt">R$ 0,00</span>
-                </div>
-            </div>
-            <div class="info-card orange">
-                <div class="info-data">
-                    <span class="info-label">Total Despesas</span>
-                    <span class="info-value" id="extDespesas">R$ 0,00</span>
-                </div>
-            </div>
-            <div class="info-card green">
-                <div class="info-data">
-                    <span class="info-label">Saldo Disponivel</span>
-                    <span class="info-value" id="extSaldo">R$ 0,00</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h2>Extrato Bancario</h2>
-                <div style="display:flex;gap:8px">
-                    <select id="extMonth" onchange="renderExtrato()"></select>
-                    <select id="extYear" onchange="renderExtrato()"></select>
-                    <button class="btn btn-primary btn-sm" onclick="openLancamentoModal()">+ Lancamento</button>
-                </div>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Dia</th>
-                            <th>Historico</th>
-                            <th class="text-right">Valor</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="extBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CONFIG ===== -->
-    <section id="page-config" class="page">
-        <div class="card">
-            <div class="card-header"><h2>Gerenciamento de Dados</h2></div>
-            <div class="actions-row">
-                <button class="btn btn-success" onclick="exportData()">Exportar JSON</button>
-                <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Importar JSON</button>
-                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-                <button class="btn btn-danger" onclick="resetData()">Resetar Dados</button>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header"><h2>Informacoes</h2></div>
-            <p style="color:#7f8c8d;line-height:1.7">
-                Sistema de controle de vencimentos de alugueis.<br>
-                Dados armazenados localmente no navegador (localStorage).<br>
-                Utilize a funcao Exportar para fazer backup periodicamente.
-            </p>
-        </div>
-    </section>
 </main>
 
-<!-- ===== MODAL IMOVEL ===== -->
-<div class="modal-overlay" id="imovelModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 id="imovelModalTitle">Novo Imovel</h3>
-            <button class="modal-close" onclick="closeModal('imovelModal')">&times;</button>
-        </div>
-        <input type="hidden" id="imEditId" value="">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Identificacao (Casa)</label>
-                <input type="text" id="imCasa" placeholder="Ex: 15, 16A">
-            </div>
-            <div class="form-group">
-                <label>Valor do Aluguel (R$)</label>
-                <input type="number" id="imValor" step="0.01" placeholder="0,00">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Dia de Pagamento</label>
-                <input type="number" id="imDia" min="1" max="31" placeholder="10">
-            </div>
-            <div class="form-group">
-                <label>Finalidade</label>
-                <select id="imFinalidade">
-                    <option value="Residencial">Residencial</option>
-                    <option value="Comercial">Comercial</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group full">
-                <label>Inquilino</label>
-                <input type="text" id="imInquilino" placeholder="Nome completo">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>CPF</label>
-                <input type="text" id="imCPF" placeholder="000.000.000-00" oninput="maskCPF(this)">
-            </div>
-            <div class="form-group">
-                <label>Inicio Contrato</label>
-                <input type="date" id="imInicio">
-            </div>
-            <div class="form-group">
-                <label>Fim Contrato</label>
-                <input type="date" id="imFim">
-            </div>
-        </div>
-        <div class="form-group full">
-            <label>Observacoes</label>
-            <textarea id="imObs" rows="3" placeholder="Notas sobre reforma, descontos, etc."></textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('imovelModal')">Cancelar</button>
-            <button class="btn btn-primary" onclick="saveImovel()">Salvar</button>
-        </div>
-    </div>
-</div>
-
-<!-- ===== MODAL PAGAMENTO ===== -->
-<div class="modal-overlay" id="pagModal">
-    <div class="modal modal-sm">
-        <div class="modal-header">
-            <h3>Registrar Pagamento</h3>
-            <button class="modal-close" onclick="closeModal('pagModal')">&times;</button>
-        </div>
-        <div id="pagModalInfo" class="modal-info"></div>
-        <input type="hidden" id="pgCasa">
-        <input type="hidden" id="pgMonth">
-        <input type="hidden" id="pgYear">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Status</label>
-                <select id="pgStatus">
-                    <option value="pendente">Pendente</option>
-                    <option value="pago">Pago</option>
-                    <option value="atrasado">Pago com Atraso</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Valor Pago (R$)</label>
-                <input type="number" id="pgValor" step="0.01">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Data do Pagamento</label>
-                <input type="date" id="pgData">
-            </div>
-        </div>
-        <div class="form-group full">
-            <label>Observacao</label>
-            <input type="text" id="pgObs" placeholder="Ex: Pix recebido">
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('pagModal')">Cancelar</button>
-            <button class="btn btn-primary" onclick="savePagamento()">Salvar</button>
-        </div>
-    </div>
-</div>
-
-<!-- ===== MODAL LANCAMENTO ===== -->
-<div class="modal-overlay" id="lancModal">
-    <div class="modal modal-sm">
-        <div class="modal-header">
-            <h3>Novo Lancamento</h3>
-            <button class="modal-close" onclick="closeModal('lancModal')">&times;</button>
-        </div>
-        <input type="hidden" id="lcEditId" value="">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Dia</label>
-                <input type="number" id="lcDia" min="1" max="31">
-            </div>
-            <div class="form-group">
-                <label>Valor (R$)</label>
-                <input type="number" id="lcValor" step="0.01" placeholder="Negativo = debito">
-            </div>
-        </div>
-        <div class="form-group full">
-            <label>Historico</label>
-            <input type="text" id="lcHist" placeholder="Ex: Pix Recebido, Pagamento Conta de Agua">
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('lancModal')">Cancelar</button>
-            <button class="btn btn-primary" onclick="saveLancamento()">Salvar</button>
-        </div>
-    </div>
-</div>
+<footer class="footer">
+    <p>Controle de Vencimentos - Alugueis &middot; Pagina de consulta</p>
+</footer>
 
 <script src="app.js"></script>
 </body>
