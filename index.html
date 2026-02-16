@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Vencimentos - Alugueis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-content">
+        <div class="header-left">
+            <h1>Controle de Alugueis</h1>
+            <p class="header-sub">Gerenciamento de imoveis e vencimentos</p>
+        </div>
+        <div class="header-right">
+            <div class="header-stat">
+                <span class="stat-label">Receita Mensal</span>
+                <span class="stat-value" id="totalReceita">R$ 0,00</span>
+            </div>
+            <div class="header-stat">
+                <span class="stat-label">Imoveis Ativos</span>
+                <span class="stat-value" id="totalImoveis">0</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard', this)">Dashboard</button>
+    <button class="nav-btn" onclick="showPage('imoveis', this)">Imoveis</button>
+    <button class="nav-btn" onclick="showPage('pagamentos', this)">Pagamentos</button>
+    <button class="nav-btn" onclick="showPage('extrato', this)">Extrato</button>
+    <button class="nav-btn" onclick="showPage('config', this)">Configuracoes</button>
+</nav>
+
+<main class="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="page-dashboard" class="page active">
+        <div class="cards-grid">
+            <div class="info-card green">
+                <div class="info-icon">$</div>
+                <div class="info-data">
+                    <span class="info-label">Receita Prevista</span>
+                    <span class="info-value" id="dashReceita">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="info-card blue">
+                <div class="info-icon">&#10003;</div>
+                <div class="info-data">
+                    <span class="info-label">Recebido no Mes</span>
+                    <span class="info-value" id="dashRecebido">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="info-card orange">
+                <div class="info-icon">!</div>
+                <div class="info-data">
+                    <span class="info-label">Pendente</span>
+                    <span class="info-value" id="dashPendente">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="info-card purple">
+                <div class="info-icon">&#9783;</div>
+                <div class="info-data">
+                    <span class="info-label">Saldo Conta</span>
+                    <span class="info-value" id="dashSaldo">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-row">
+            <div class="card flex-2">
+                <div class="card-header">
+                    <h2>Proximos Vencimentos</h2>
+                    <span class="month-selector">
+                        <select id="dashMonth" onchange="renderDashboard()"></select>
+                        <select id="dashYear" onchange="renderDashboard()"></select>
+                    </span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Casa</th>
+                                <th>Inquilino</th>
+                                <th class="text-right">Valor</th>
+                                <th class="text-center">Vencimento</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashVencimentos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card flex-1">
+                <div class="card-header">
+                    <h2>Contratos</h2>
+                </div>
+                <div id="dashContratos"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Historico de Recebimentos (12 meses)</h2>
+            </div>
+            <div class="chart-area" id="dashChart"></div>
+            <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot green-bg"></span> Recebido</span>
+                <span class="legend-item"><span class="legend-dot orange-bg"></span> Pendente</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== IMOVEIS ===== -->
+    <section id="page-imoveis" class="page">
+        <div class="card">
+            <div class="card-header">
+                <h2>Imoveis Cadastrados</h2>
+                <button class="btn btn-primary" onclick="openImovelModal()">+ Novo Imovel</button>
+            </div>
+            <div id="imoveisList"></div>
+        </div>
+    </section>
+
+    <!-- ===== PAGAMENTOS ===== -->
+    <section id="page-pagamentos" class="page">
+        <div class="card">
+            <div class="card-header">
+                <h2>Controle de Pagamentos</h2>
+                <span class="month-selector">
+                    <select id="pagMonth" onchange="renderPagamentos()"></select>
+                    <select id="pagYear" onchange="renderPagamentos()"></select>
+                </span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Casa</th>
+                            <th>Inquilino</th>
+                            <th class="text-right">Valor Aluguel</th>
+                            <th class="text-center">Dia Venc.</th>
+                            <th class="text-center">Status</th>
+                            <th>Data Pagamento</th>
+                            <th class="text-right">Valor Pago</th>
+                            <th>Obs</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagBody"></tbody>
+                    <tfoot id="pagFoot"></tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Historico Completo</h2>
+                <div class="filter-group">
+                    <select id="histFilterCasa" onchange="renderHistorico()">
+                        <option value="">Todas as casas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mes/Ano</th>
+                            <th>Casa</th>
+                            <th>Inquilino</th>
+                            <th class="text-right">Valor</th>
+                            <th>Data Pgto</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="histBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== EXTRATO ===== -->
+    <section id="page-extrato" class="page">
+        <div class="cards-grid cols-3">
+            <div class="info-card blue">
+                <div class="info-data">
+                    <span class="info-label">Saldo Anterior</span>
+                    <span class="info-value" id="extSaldoAnt">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="info-card orange">
+                <div class="info-data">
+                    <span class="info-label">Total Despesas</span>
+                    <span class="info-value" id="extDespesas">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="info-card green">
+                <div class="info-data">
+                    <span class="info-label">Saldo Disponivel</span>
+                    <span class="info-value" id="extSaldo">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Extrato Bancario</h2>
+                <div style="display:flex;gap:8px">
+                    <select id="extMonth" onchange="renderExtrato()"></select>
+                    <select id="extYear" onchange="renderExtrato()"></select>
+                    <button class="btn btn-primary btn-sm" onclick="openLancamentoModal()">+ Lancamento</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dia</th>
+                            <th>Historico</th>
+                            <th class="text-right">Valor</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="extBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONFIG ===== -->
+    <section id="page-config" class="page">
+        <div class="card">
+            <div class="card-header"><h2>Gerenciamento de Dados</h2></div>
+            <div class="actions-row">
+                <button class="btn btn-success" onclick="exportData()">Exportar JSON</button>
+                <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+                <button class="btn btn-danger" onclick="resetData()">Resetar Dados</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>Informacoes</h2></div>
+            <p style="color:#7f8c8d;line-height:1.7">
+                Sistema de controle de vencimentos de alugueis.<br>
+                Dados armazenados localmente no navegador (localStorage).<br>
+                Utilize a funcao Exportar para fazer backup periodicamente.
+            </p>
+        </div>
+    </section>
+</main>
+
+<!-- ===== MODAL IMOVEL ===== -->
+<div class="modal-overlay" id="imovelModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="imovelModalTitle">Novo Imovel</h3>
+            <button class="modal-close" onclick="closeModal('imovelModal')">&times;</button>
+        </div>
+        <input type="hidden" id="imEditId" value="">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Identificacao (Casa)</label>
+                <input type="text" id="imCasa" placeholder="Ex: 15, 16A">
+            </div>
+            <div class="form-group">
+                <label>Valor do Aluguel (R$)</label>
+                <input type="number" id="imValor" step="0.01" placeholder="0,00">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Dia de Pagamento</label>
+                <input type="number" id="imDia" min="1" max="31" placeholder="10">
+            </div>
+            <div class="form-group">
+                <label>Finalidade</label>
+                <select id="imFinalidade">
+                    <option value="Residencial">Residencial</option>
+                    <option value="Comercial">Comercial</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Inquilino</label>
+                <input type="text" id="imInquilino" placeholder="Nome completo">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>CPF</label>
+                <input type="text" id="imCPF" placeholder="000.000.000-00" oninput="maskCPF(this)">
+            </div>
+            <div class="form-group">
+                <label>Inicio Contrato</label>
+                <input type="date" id="imInicio">
+            </div>
+            <div class="form-group">
+                <label>Fim Contrato</label>
+                <input type="date" id="imFim">
+            </div>
+        </div>
+        <div class="form-group full">
+            <label>Observacoes</label>
+            <textarea id="imObs" rows="3" placeholder="Notas sobre reforma, descontos, etc."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('imovelModal')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveImovel()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL PAGAMENTO ===== -->
+<div class="modal-overlay" id="pagModal">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h3>Registrar Pagamento</h3>
+            <button class="modal-close" onclick="closeModal('pagModal')">&times;</button>
+        </div>
+        <div id="pagModalInfo" class="modal-info"></div>
+        <input type="hidden" id="pgCasa">
+        <input type="hidden" id="pgMonth">
+        <input type="hidden" id="pgYear">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Status</label>
+                <select id="pgStatus">
+                    <option value="pendente">Pendente</option>
+                    <option value="pago">Pago</option>
+                    <option value="atrasado">Pago com Atraso</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Valor Pago (R$)</label>
+                <input type="number" id="pgValor" step="0.01">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Data do Pagamento</label>
+                <input type="date" id="pgData">
+            </div>
+        </div>
+        <div class="form-group full">
+            <label>Observacao</label>
+            <input type="text" id="pgObs" placeholder="Ex: Pix recebido">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('pagModal')">Cancelar</button>
+            <button class="btn btn-primary" onclick="savePagamento()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL LANCAMENTO ===== -->
+<div class="modal-overlay" id="lancModal">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h3>Novo Lancamento</h3>
+            <button class="modal-close" onclick="closeModal('lancModal')">&times;</button>
+        </div>
+        <input type="hidden" id="lcEditId" value="">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Dia</label>
+                <input type="number" id="lcDia" min="1" max="31">
+            </div>
+            <div class="form-group">
+                <label>Valor (R$)</label>
+                <input type="number" id="lcValor" step="0.01" placeholder="Negativo = debito">
+            </div>
+        </div>
+        <div class="form-group full">
+            <label>Historico</label>
+            <input type="text" id="lcHist" placeholder="Ex: Pix Recebido, Pagamento Conta de Agua">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('lancModal')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveLancamento()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
