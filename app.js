@@ -29,6 +29,8 @@ let extratoMes = 1; // 0=Jan, 1=Fev
 let extratoAno = 2026;
 let imoveisData = [];
 let extratosData = {};
+let lastFetchTime = null;
+let isRefreshing = false;
 
 // ===== CSV PARSER =====
 function parseCSV(text) {
@@ -206,27 +208,46 @@ async function fetchPlanilha() {
             extratosData = FALLBACK_EXTRATOS;
         }
 
+        lastFetchTime = new Date();
         renderAll();
         showDataSource(onlineImoveis && onlineExtrato);
     } catch (err) {
         console.warn('Erro ao carregar planilha:', err);
         imoveisData = FALLBACK_IMOVEIS;
         extratosData = FALLBACK_EXTRATOS;
+        lastFetchTime = new Date();
         renderAll();
         showDataSource(false);
     } finally {
         if (loading) loading.style.display = 'none';
+        isRefreshing = false;
+    }
+}
+
+async function refreshData() {
+    if (isRefreshing) return;
+    isRefreshing = true;
+    const btn = document.getElementById('btnRefresh');
+    if (btn) {
+        btn.classList.add('refreshing');
+        btn.disabled = true;
+    }
+    await fetchPlanilha();
+    if (btn) {
+        btn.classList.remove('refreshing');
+        btn.disabled = false;
     }
 }
 
 function showDataSource(online) {
     const el = document.getElementById('dataSource');
     if (!el) return;
+    const timeStr = lastFetchTime ? lastFetchTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
     if (online) {
-        el.innerHTML = '<span class="source-dot source-online"></span> Dados carregados da planilha Google Sheets';
+        el.innerHTML = `<span class="source-dot source-online"></span> Dados carregados da planilha Google Sheets <span class="source-time">as ${timeStr}</span> <button class="btn-refresh" id="btnRefresh" onclick="refreshData()" title="Atualizar dados">&#8635; Atualizar</button>`;
         el.className = 'data-source data-source-online';
     } else {
-        el.innerHTML = '<span class="source-dot source-offline"></span> Usando dados locais (planilha indisponivel)';
+        el.innerHTML = `<span class="source-dot source-offline"></span> Usando dados locais (planilha indisponivel) <button class="btn-refresh" id="btnRefresh" onclick="refreshData()" title="Tentar novamente">&#8635; Tentar novamente</button>`;
         el.className = 'data-source data-source-offline';
     }
 }
@@ -239,8 +260,84 @@ function renderAll() {
     renderContratos();
     renderAlertas();
     renderDescontoCountdown();
+    renderGrafico();
     renderExtrato();
     renderLastUpdate();
+}
+
+// ===== GRAFICO DE RECEITAS =====
+function renderGrafico() {
+    const container = document.getElementById('graficoContainer');
+    if (!container) return;
+
+    const keys = Object.keys(extratosData).sort();
+    if (keys.length === 0) {
+        container.innerHTML = '<p class="extrato-empty">Nenhum dado disponivel para o grafico.</p>';
+        return;
+    }
+
+    // Calcula entradas, saidas e saldo final por mes
+    const mesesData = keys.map(key => {
+        const ext = extratosData[key];
+        let entradas = 0;
+        let saidas = 0;
+        ext.lancamentos.forEach(l => {
+            if (l.valor >= 0) entradas += l.valor;
+            else saidas += Math.abs(l.valor);
+        });
+        const saldoFinal = ext.saldoAnterior + entradas - saidas;
+        const parts = key.split('-');
+        const mesLabel = MESES[parseInt(parts[1]) - 1].substring(0, 3) + '/' + parts[0].substring(2);
+        return { key, mesLabel, entradas, saidas, saldoFinal, saldoAnterior: ext.saldoAnterior };
+    });
+
+    // Encontra valor maximo para escala
+    const maxVal = Math.max(...mesesData.map(m => Math.max(m.entradas, m.saidas)));
+    const maxScale = maxVal > 0 ? maxVal : 1;
+
+    let html = '<div class="grafico-legenda">';
+    html += '<span class="legenda-item"><span class="legenda-cor legenda-entrada"></span> Entradas</span>';
+    html += '<span class="legenda-item"><span class="legenda-cor legenda-saida"></span> Saidas</span>';
+    html += '<span class="legenda-item"><span class="legenda-cor legenda-saldo"></span> Saldo</span>';
+    html += '</div>';
+
+    html += '<div class="grafico-barras">';
+    mesesData.forEach(m => {
+        const entPct = (m.entradas / maxScale * 100).toFixed(1);
+        const saiPct = (m.saidas / maxScale * 100).toFixed(1);
+        html += `<div class="grafico-mes">
+            <div class="grafico-bars">
+                <div class="grafico-bar-wrap">
+                    <div class="grafico-bar bar-entrada" style="height:${entPct}%" title="Entradas: R$ ${fmt(m.entradas)}"></div>
+                </div>
+                <div class="grafico-bar-wrap">
+                    <div class="grafico-bar bar-saida" style="height:${saiPct}%" title="Saidas: R$ ${fmt(m.saidas)}"></div>
+                </div>
+            </div>
+            <div class="grafico-label">${m.mesLabel}</div>
+            <div class="grafico-saldo">R$ ${fmt(m.saldoFinal)}</div>
+        </div>`;
+    });
+    html += '</div>';
+
+    // Resumo do mes mais recente
+    const ultimo = mesesData[mesesData.length - 1];
+    html += `<div class="grafico-resumo">
+        <div class="grafico-resumo-item">
+            <span class="grafico-resumo-label">Entradas</span>
+            <span class="grafico-resumo-valor valor-positivo">R$ ${fmt(ultimo.entradas)}</span>
+        </div>
+        <div class="grafico-resumo-item">
+            <span class="grafico-resumo-label">Saidas</span>
+            <span class="grafico-resumo-valor valor-negativo">R$ ${fmt(ultimo.saidas)}</span>
+        </div>
+        <div class="grafico-resumo-item">
+            <span class="grafico-resumo-label">Saldo Final</span>
+            <span class="grafico-resumo-valor" style="color:var(--primary);font-size:1.1rem">R$ ${fmt(ultimo.saldoFinal)}</span>
+        </div>
+    </div>`;
+
+    container.innerHTML = html;
 }
 
 // ===== DARK MODE =====
