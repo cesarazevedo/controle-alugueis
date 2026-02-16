@@ -495,9 +495,65 @@ tfoot td { font-weight: 700; background: var(--table-stripe); border-top: 2px so
     .card-header-row { flex-direction: column; align-items: flex-start; }
 }
 
+/* LOADING OVERLAY */
+.loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    gap: 16px;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    transition: opacity 0.3s;
+}
+
+body.dark .loading-overlay { background: rgba(26,29,35,0.92); }
+
+.loading-spinner {
+    width: 40px; height: 40px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* DATA SOURCE INDICATOR */
+.data-source {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.data-source-online { background: var(--green-light); color: #155724; }
+.data-source-offline { background: var(--orange-light); color: #856404; }
+
+body.dark .data-source-online { color: #5ecc8a; }
+body.dark .data-source-offline { color: #f0c060; }
+
+.source-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.source-online { background: var(--green); }
+.source-offline { background: var(--orange); }
+
 /* PRINT */
 @media print {
-    .header-actions, .extrato-nav .btn-nav, .alertas-container { display: none !important; }
+    .header-actions, .extrato-nav .btn-nav, .alertas-container, .data-source, .loading-overlay { display: none !important; }
     body.dark { --bg: #fff; --card: #fff; --text: #222; --text-light: #666; --border: #ddd; }
     .header { background: var(--primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }

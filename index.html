@@ -8,6 +8,12 @@
 </head>
 <body>
 
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Carregando dados da planilha...</p>
+</div>
+
 <header class="header">
     <div class="header-content">
         <div>
@@ -23,6 +29,9 @@
 
 <main class="main">
 
+    <!-- FONTE DOS DADOS -->
+    <div id="dataSource" class="data-source"></div>
+
     <!-- ALERTAS DE VENCIMENTO -->
     <div id="alertasVencimento" class="alertas-container"></div>
 
@@ -35,15 +44,15 @@
     <section class="summary-row">
         <div class="summary-item green">
             <span class="summary-label">Receita Mensal Prevista</span>
-            <span class="summary-value">R$ 1.656,00</span>
+            <span class="summary-value" id="summaryReceita">-</span>
         </div>
         <div class="summary-item blue">
             <span class="summary-label">Imoveis Alugados</span>
-            <span class="summary-value">3</span>
+            <span class="summary-value" id="summaryImoveis">-</span>
         </div>
         <div class="summary-item orange">
             <span class="summary-label">Pagamentos em Atraso</span>
-            <span class="summary-value">1</span>
+            <span class="summary-value" id="summaryAtraso">-</span>
         </div>
     </section>
 
@@ -65,48 +74,8 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td class="cell-casa"><strong>15</strong></td>
-                        <td class="cell-valor">R$ 630,00</td>
-                        <td class="text-center">14</td>
-                        <td>Luis Felipe da Silva Medeiros</td>
-                        <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="134.162.744-66" data-visible="false" title="Clique para revelar">134.***.***-66</span></td>
-                        <td>13/11/2025</td>
-                        <td>13/11/2026</td>
-                        <td><span class="badge badge-residencial">Residencial</span></td>
-                        <td><span class="badge badge-ok">Em dia</span></td>
-                    </tr>
-                    <tr class="row-atrasado">
-                        <td class="cell-casa"><strong>16</strong></td>
-                        <td class="cell-valor">R$ 720,00</td>
-                        <td class="text-center">10</td>
-                        <td>Pedro Elandro Holanda Granjeiro</td>
-                        <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="104.295.114-42" data-visible="false" title="Clique para revelar">104.***.***-42</span></td>
-                        <td>04/04/2023</td>
-                        <td>04/04/2026</td>
-                        <td><span class="badge badge-comercial">Comercial</span></td>
-                        <td><span class="badge badge-atrasado">Em atraso</span></td>
-                    </tr>
-                    <tr>
-                        <td class="cell-casa"><strong>16A</strong></td>
-                        <td class="cell-valor">R$ 306,00</td>
-                        <td class="text-center">5</td>
-                        <td>Humberto de Oliveira Nunes <span class="nota-ref">*</span></td>
-                        <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="653.396.814-91" data-visible="false" title="Clique para revelar">653.***.***-91</span></td>
-                        <td>30/06/2025</td>
-                        <td>30/06/2027</td>
-                        <td><span class="badge badge-residencial">Residencial</span></td>
-                        <td><span class="badge badge-desconto">Com desconto</span></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td><strong>Total</strong></td>
-                        <td class="cell-valor"><strong>R$ 1.656,00</strong></td>
-                        <td colspan="7"></td>
-                    </tr>
-                </tfoot>
+                <tbody id="mainTableBody"></tbody>
+                <tfoot id="mainTableFoot"></tfoot>
             </table>
         </div>
         <p class="cpf-hint">* Clique no CPF para revelar/ocultar o numero completo</p>
@@ -115,106 +84,13 @@
     <!-- OBSERVACOES -->
     <section class="card">
         <h2 class="card-title">Observacoes</h2>
-        <div class="obs-list">
-            <div class="obs-item obs-desconto">
-                <span class="obs-icon">*</span>
-                <div>
-                    <strong>Casa 16A - Humberto de Oliveira Nunes</strong>
-                    <p>Fizeram uma reforma (troca de pisos quebrados, reboco do teto e colocacao de piso na area de servico; substituicao do piso no quarto de taco); desconto de 50% do aluguel por um ano (ate 30/06/2026); IPTU e agua inclusos no aluguel.</p>
-                    <div class="desconto-countdown" id="descontoCountdown"></div>
-                </div>
-            </div>
-            <div class="obs-item obs-atraso">
-                <span class="obs-icon">!</span>
-                <div>
-                    <strong>Casa 16 - Pedro Elandro Holanda Granjeiro</strong>
-                    <p>Aluguel com pagamento em atraso.</p>
-                </div>
-            </div>
-        </div>
+        <div class="obs-list" id="obsContainer"></div>
     </section>
 
     <!-- DETALHES DOS CONTRATOS -->
     <section class="card">
         <h2 class="card-title">Situacao dos Contratos</h2>
-        <div class="contratos-grid">
-
-            <div class="contrato-card">
-                <div class="contrato-header">
-                    <div class="contrato-casa">15</div>
-                    <div class="contrato-info">
-                        <strong>Luis Felipe da Silva Medeiros</strong>
-                        <span class="contrato-tipo badge badge-residencial">Residencial</span>
-                    </div>
-                    <div class="contrato-valor">R$ 630,00<small>/mes</small></div>
-                </div>
-                <div class="contrato-detalhes">
-                    <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 14</span></div>
-                    <div class="detalhe"><span class="detalhe-label">Contrato</span><span>13/11/2025 a 13/11/2026</span></div>
-                    <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="134.162.744-66" data-visible="false" title="Clique para revelar">134.***.***-66</span></div>
-                </div>
-                <div class="contrato-barra">
-                    <div class="barra-bg"><div class="barra-fill" id="barra-15"></div></div>
-                    <div class="barra-labels">
-                        <span>13/11/2025</span>
-                        <span id="dias-15"></span>
-                        <span>13/11/2026</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="contrato-card contrato-atrasado">
-                <div class="contrato-header">
-                    <div class="contrato-casa atrasado">16</div>
-                    <div class="contrato-info">
-                        <strong>Pedro Elandro Holanda Granjeiro</strong>
-                        <span class="contrato-tipo badge badge-comercial">Comercial</span>
-                        <span class="badge badge-atrasado" style="margin-left:6px">Em atraso</span>
-                    </div>
-                    <div class="contrato-valor">R$ 720,00<small>/mes</small></div>
-                </div>
-                <div class="contrato-detalhes">
-                    <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 10</span></div>
-                    <div class="detalhe"><span class="detalhe-label">Contrato</span><span>04/04/2023 a 04/04/2026</span></div>
-                    <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="104.295.114-42" data-visible="false" title="Clique para revelar">104.***.***-42</span></div>
-                </div>
-                <div class="contrato-barra">
-                    <div class="barra-bg"><div class="barra-fill" id="barra-16"></div></div>
-                    <div class="barra-labels">
-                        <span>04/04/2023</span>
-                        <span id="dias-16"></span>
-                        <span>04/04/2026</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="contrato-card contrato-desconto">
-                <div class="contrato-header">
-                    <div class="contrato-casa desconto">16A</div>
-                    <div class="contrato-info">
-                        <strong>Humberto de Oliveira Nunes</strong>
-                        <span class="contrato-tipo badge badge-residencial">Residencial</span>
-                        <span class="badge badge-desconto" style="margin-left:6px">50% desconto</span>
-                    </div>
-                    <div class="contrato-valor">R$ 306,00<small>/mes</small></div>
-                </div>
-                <div class="contrato-detalhes">
-                    <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia 5</span></div>
-                    <div class="detalhe"><span class="detalhe-label">Contrato</span><span>30/06/2025 a 30/06/2027</span></div>
-                    <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="653.396.814-91" data-visible="false" title="Clique para revelar">653.***.***-91</span></div>
-                    <div class="detalhe"><span class="detalhe-label">Desconto ate</span><span>30/06/2026</span></div>
-                </div>
-                <div class="contrato-barra">
-                    <div class="barra-bg"><div class="barra-fill" id="barra-16a"></div></div>
-                    <div class="barra-labels">
-                        <span>30/06/2025</span>
-                        <span id="dias-16a"></span>
-                        <span>30/06/2027</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+        <div class="contratos-grid" id="contratosContainer"></div>
     </section>
 
     <!-- EXTRATO -->
@@ -230,11 +106,11 @@
         <div class="extrato-resumo" id="extratoResumo">
             <div class="extrato-item">
                 <span class="extrato-label">Saldo Anterior</span>
-                <span class="extrato-valor" id="extSaldoAnt">R$ 5.081,08</span>
+                <span class="extrato-valor" id="extSaldoAnt">-</span>
             </div>
             <div class="extrato-item">
                 <span class="extrato-label">Disponivel</span>
-                <span class="extrato-valor destaque" id="extDisponivel">R$ 5.447,72</span>
+                <span class="extrato-valor destaque" id="extDisponivel">-</span>
             </div>
         </div>
         <div class="table-wrap">

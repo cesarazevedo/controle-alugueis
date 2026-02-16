@@ -1,5 +1,15 @@
-// ===== DADOS DO EXTRATO (multi-mes) =====
+// ===== CONFIG =====
+const SPREADSHEET_ID = '14JDU49MVYXus9zmrwNWj_YZ2Ze0LjLAkq_GUBC7V168';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=0`;
+
 const MESES = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// ===== DADOS FALLBACK (caso a planilha nao carregue) =====
+const FALLBACK_IMOVEIS = [
+    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em dia', observacao: '' },
+    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '04/04/2023', fim: '04/04/2026', finalidade: 'Comercial', status: 'Em atraso', observacao: '' },
+    { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: '' }
+];
 
 const extratos = {
     '2025-02': {
@@ -14,15 +24,136 @@ const extratos = {
     }
 };
 
-let extratoMes = 1; // 0=Jan, 1=Fev
+let extratoMes = 1;
 let extratoAno = 2025;
+let imoveisData = [];
 
-// ===== IMOVEIS (para alertas) =====
-const imoveis = [
-    { casa: '15', inquilino: 'Luis Felipe da Silva Medeiros', dia: 14, valor: 630, emAtraso: false },
-    { casa: '16', inquilino: 'Pedro Elandro Holanda Granjeiro', dia: 10, valor: 720, emAtraso: true },
-    { casa: '16A', inquilino: 'Humberto de Oliveira Nunes', dia: 5, valor: 306, emAtraso: false }
-];
+// ===== CSV PARSER =====
+function parseCSV(text) {
+    const rows = [];
+    let current = '';
+    let inQuotes = false;
+    let row = [];
+
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+            if (ch === '"' && text[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else if (ch === '"') {
+                inQuotes = false;
+            } else {
+                current += ch;
+            }
+        } else {
+            if (ch === '"') {
+                inQuotes = true;
+            } else if (ch === ',') {
+                row.push(current.trim());
+                current = '';
+            } else if (ch === '\n' || (ch === '\r' && text[i + 1] === '\n')) {
+                row.push(current.trim());
+                current = '';
+                if (ch === '\r') i++;
+                rows.push(row);
+                row = [];
+            } else {
+                current += ch;
+            }
+        }
+    }
+    if (current || row.length > 0) {
+        row.push(current.trim());
+        rows.push(row);
+    }
+    return rows;
+}
+
+function parseValor(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+}
+
+function parseImoveis(rows) {
+    const imoveis = [];
+    // Pula header (row 0), observacao esta na row 0 col 9+
+    const obsGeral = (rows[0] && rows[0][9]) ? rows[0][9] : '';
+
+    for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r[0] || r[0].toLowerCase() === 'total' || r[0] === '') continue;
+
+        const casa = r[0].trim();
+        const valor = parseValor(r[1]);
+        const dia = parseInt(r[2]) || 0;
+        let inquilino = (r[3] || '').trim();
+        const cpf = (r[4] || '').trim();
+        const inicio = (r[5] || '').trim();
+        const fim = (r[6] || '').trim();
+        const finalidade = (r[7] || '').trim();
+        const status = (r[8] || '').trim();
+        const observacao = (r[9] || '').trim();
+
+        // Remove * do nome do inquilino (indicador de observacao)
+        const temNota = inquilino.endsWith('*');
+        if (temNota) inquilino = inquilino.slice(0, -1).trim();
+
+        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao, temNota, obsGeral });
+    }
+    return imoveis;
+}
+
+// ===== FETCH PLANILHA =====
+async function fetchPlanilha() {
+    const loading = document.getElementById('loadingOverlay');
+    try {
+        if (loading) loading.style.display = 'flex';
+
+        const resp = await fetch(CSV_URL);
+        if (!resp.ok) throw new Error('Erro ao buscar planilha');
+
+        const text = await resp.text();
+        const rows = parseCSV(text);
+        imoveisData = parseImoveis(rows);
+
+        if (imoveisData.length === 0) throw new Error('Planilha vazia');
+
+        renderAll();
+        showDataSource(true);
+    } catch (err) {
+        console.warn('Erro ao carregar planilha, usando dados locais:', err);
+        imoveisData = FALLBACK_IMOVEIS;
+        renderAll();
+        showDataSource(false);
+    } finally {
+        if (loading) loading.style.display = 'none';
+    }
+}
+
+function showDataSource(online) {
+    const el = document.getElementById('dataSource');
+    if (!el) return;
+    if (online) {
+        el.innerHTML = '<span class="source-dot source-online"></span> Dados carregados da planilha Google Sheets';
+        el.className = 'data-source data-source-online';
+    } else {
+        el.innerHTML = '<span class="source-dot source-offline"></span> Usando dados locais (planilha indisponivel)';
+        el.className = 'data-source data-source-offline';
+    }
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+    renderSummary();
+    renderMainTable();
+    renderObservacoes();
+    renderContratos();
+    renderAlertas();
+    renderDescontoCountdown();
+    renderExtrato();
+    renderLastUpdate();
+}
 
 // ===== DARK MODE =====
 function toggleTheme() {
@@ -39,9 +170,7 @@ function updateThemeButton() {
 
 function loadTheme() {
     const saved = localStorage.getItem('theme');
-    if (saved === 'dark') {
-        document.body.classList.add('dark');
-    }
+    if (saved === 'dark') document.body.classList.add('dark');
     updateThemeButton();
 }
 
@@ -60,6 +189,167 @@ function toggleCPF(el) {
         el.classList.add('revealed');
         el.title = 'Clique para ocultar';
     }
+}
+
+function cpfMasked(cpf) {
+    if (!cpf || cpf.length < 5) return cpf;
+    return cpf.substring(0, 3) + '.***.***-' + cpf.slice(-2);
+}
+
+// ===== SUMMARY =====
+function renderSummary() {
+    const totalReceita = imoveisData.reduce((s, im) => s + im.valor, 0);
+    const totalImoveis = imoveisData.length;
+    const totalAtraso = imoveisData.filter(im => isAtrasado(im)).length;
+
+    document.getElementById('summaryReceita').textContent = 'R$ ' + fmt(totalReceita);
+    document.getElementById('summaryImoveis').textContent = totalImoveis;
+    document.getElementById('summaryAtraso').textContent = totalAtraso;
+}
+
+function isAtrasado(im) {
+    return im.status && im.status.toLowerCase().includes('atraso');
+}
+
+function isDesconto(im) {
+    return im.status && im.status.toLowerCase().includes('desconto');
+}
+
+// ===== MAIN TABLE =====
+function renderMainTable() {
+    const tbody = document.getElementById('mainTableBody');
+    const tfoot = document.getElementById('mainTableFoot');
+    const total = imoveisData.reduce((s, im) => s + im.valor, 0);
+
+    tbody.innerHTML = imoveisData.map(im => {
+        const rowClass = isAtrasado(im) ? 'row-atrasado' : '';
+        const notaRef = im.temNota ? ' <span class="nota-ref">*</span>' : '';
+        let statusBadge = '<span class="badge badge-ok">Em dia</span>';
+        if (isAtrasado(im)) statusBadge = '<span class="badge badge-atrasado">Em atraso</span>';
+        else if (isDesconto(im)) statusBadge = '<span class="badge badge-desconto">Com desconto</span>';
+
+        const finalBadge = im.finalidade.toLowerCase() === 'comercial'
+            ? '<span class="badge badge-comercial">Comercial</span>'
+            : '<span class="badge badge-residencial">Residencial</span>';
+
+        return `<tr class="${rowClass}">
+            <td class="cell-casa"><strong>${im.casa}</strong></td>
+            <td class="cell-valor">R$ ${fmt(im.valor)}</td>
+            <td class="text-center">${im.dia}</td>
+            <td>${im.inquilino}${notaRef}</td>
+            <td class="cell-cpf"><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="${im.cpf}" data-visible="false" title="Clique para revelar">${cpfMasked(im.cpf)}</span></td>
+            <td>${im.inicio}</td>
+            <td>${im.fim}</td>
+            <td>${finalBadge}</td>
+            <td>${statusBadge}</td>
+        </tr>`;
+    }).join('');
+
+    tfoot.innerHTML = `<tr>
+        <td><strong>Total</strong></td>
+        <td class="cell-valor"><strong>R$ ${fmt(total)}</strong></td>
+        <td colspan="7"></td>
+    </tr>`;
+}
+
+// ===== OBSERVACOES =====
+function renderObservacoes() {
+    const container = document.getElementById('obsContainer');
+    const items = [];
+
+    // Busca imovel com desconto que tenha observacao
+    imoveisData.forEach(im => {
+        if (im.temNota && im.obsGeral) {
+            items.push(`<div class="obs-item obs-desconto">
+                <span class="obs-icon">*</span>
+                <div>
+                    <strong>Casa ${im.casa} - ${im.inquilino}</strong>
+                    <p>${im.obsGeral}</p>
+                    <div class="desconto-countdown" id="descontoCountdown"></div>
+                </div>
+            </div>`);
+        }
+    });
+
+    // Imoveis em atraso
+    imoveisData.forEach(im => {
+        if (isAtrasado(im)) {
+            items.push(`<div class="obs-item obs-atraso">
+                <span class="obs-icon">!</span>
+                <div>
+                    <strong>Casa ${im.casa} - ${im.inquilino}</strong>
+                    <p>Aluguel com pagamento em atraso.</p>
+                </div>
+            </div>`);
+        }
+    });
+
+    container.innerHTML = items.join('');
+}
+
+// ===== CONTRATOS =====
+function renderContratos() {
+    const container = document.getElementById('contratosContainer');
+
+    container.innerHTML = imoveisData.map(im => {
+        let cardClass = 'contrato-card';
+        let casaClass = 'contrato-casa';
+        let extraBadge = '';
+
+        if (isAtrasado(im)) {
+            cardClass += ' contrato-atrasado';
+            casaClass += ' atrasado';
+            extraBadge = '<span class="badge badge-atrasado" style="margin-left:6px">Em atraso</span>';
+        } else if (isDesconto(im)) {
+            cardClass += ' contrato-desconto';
+            casaClass += ' desconto';
+            extraBadge = '<span class="badge badge-desconto" style="margin-left:6px">50% desconto</span>';
+        }
+
+        const finalBadge = im.finalidade.toLowerCase() === 'comercial'
+            ? '<span class="contrato-tipo badge badge-comercial">Comercial</span>'
+            : '<span class="contrato-tipo badge badge-residencial">Residencial</span>';
+
+        const barraId = 'barra-' + im.casa.toLowerCase();
+        const diasId = 'dias-' + im.casa.toLowerCase();
+
+        let descontoDetalhe = '';
+        if (isDesconto(im)) {
+            descontoDetalhe = `<div class="detalhe"><span class="detalhe-label">Desconto ate</span><span>30/06/2026</span></div>`;
+        }
+
+        return `<div class="${cardClass}">
+            <div class="contrato-header">
+                <div class="${casaClass}">${im.casa}</div>
+                <div class="contrato-info">
+                    <strong>${im.inquilino}</strong>
+                    ${finalBadge}${extraBadge}
+                </div>
+                <div class="contrato-valor">R$ ${fmt(im.valor)}<small>/mes</small></div>
+            </div>
+            <div class="contrato-detalhes">
+                <div class="detalhe"><span class="detalhe-label">Vencimento</span><span>Dia ${im.dia}</span></div>
+                <div class="detalhe"><span class="detalhe-label">Contrato</span><span>${im.inicio} a ${im.fim}</span></div>
+                <div class="detalhe"><span class="detalhe-label">CPF</span><span class="cpf-mask" onclick="toggleCPF(this)" data-cpf="${im.cpf}" data-visible="false" title="Clique para revelar">${cpfMasked(im.cpf)}</span></div>
+                ${descontoDetalhe}
+            </div>
+            <div class="contrato-barra">
+                <div class="barra-bg"><div class="barra-fill" id="${barraId}"></div></div>
+                <div class="barra-labels">
+                    <span>${im.inicio}</span>
+                    <span id="${diasId}"></span>
+                    <span>${im.fim}</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Calcula barras apos renderizar
+    imoveisData.forEach(im => {
+        const barraId = 'barra-' + im.casa.toLowerCase();
+        const diasId = 'dias-' + im.casa.toLowerCase();
+        calcBarra(im.inicio, im.fim, barraId, diasId);
+    });
 }
 
 // ===== BARRAS DE CONTRATO =====
@@ -93,11 +383,11 @@ function renderAlertas() {
     const container = document.getElementById('alertasVencimento');
     const alertas = [];
 
-    imoveis.forEach(im => {
-        if (!im.emAtraso) return;
+    imoveisData.forEach(im => {
+        if (!isAtrasado(im)) return;
         alertas.push({
             urgente: true,
-            texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${im.valor.toFixed(2).replace('.',',')}</strong> com pagamento <strong>em atraso</strong> (vencimento dia ${im.dia}) - ${im.inquilino}`
+            texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${fmt(im.valor)}</strong> com pagamento <strong>em atraso</strong> (vencimento dia ${im.dia}) - ${im.inquilino}`
         });
     });
 
@@ -112,7 +402,9 @@ function renderAlertas() {
 // ===== CONTAGEM REGRESSIVA DESCONTO =====
 function renderDescontoCountdown() {
     const el = document.getElementById('descontoCountdown');
-    const fimDesconto = new Date(2026, 5, 30); // 30/06/2026
+    if (!el) return;
+
+    const fimDesconto = new Date(2026, 5, 30);
     const hoje = new Date();
     const diff = fimDesconto - hoje;
     const diasRestantes = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
@@ -188,18 +480,11 @@ function renderExtrato() {
 // ===== DATA ULTIMA ATUALIZACAO =====
 function renderLastUpdate() {
     const el = document.getElementById('lastUpdate');
-    // Data do ultimo deploy/atualizacao
-    const updateDate = new Date('2026-02-16T12:00:00');
+    const now = new Date();
     const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-    el.textContent = updateDate.toLocaleDateString('pt-BR', options);
+    el.textContent = now.toLocaleDateString('pt-BR', options);
 }
 
 // ===== INIT =====
 loadTheme();
-calcBarra('13/11/2025', '13/11/2026', 'barra-15', 'dias-15');
-calcBarra('04/04/2023', '04/04/2026', 'barra-16', 'dias-16');
-calcBarra('30/06/2025', '30/06/2027', 'barra-16a', 'dias-16a');
-renderAlertas();
-renderDescontoCountdown();
-renderExtrato();
-renderLastUpdate();
+fetchPlanilha();
