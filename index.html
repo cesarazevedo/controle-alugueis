@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Vencimentos - Alugueis</title>
+    <title>Controle de Vencimentos - Aluguéis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,8 +20,8 @@
 <header class="header">
     <div class="header-content">
         <div>
-            <h1>Controle de Vencimentos - Alugueis</h1>
-            <p class="header-sub">Consulta de imoveis, inquilinos e vencimentos</p>
+            <h1>Controle de Vencimentos - Aluguéis</h1>
+            <p class="header-sub">Consulta de imóveis, inquilinos e vencimentos</p>
         </div>
         <div class="header-actions">
             <button class="btn-header" onclick="window.print()" title="Imprimir">&#128424; Imprimir</button>
@@ -35,7 +38,7 @@
     <!-- ALERTAS DE VENCIMENTO -->
     <div id="alertasVencimento" class="alertas-container"></div>
 
-    <!-- FOTO DOS IMOVEIS -->
+    <!-- FOTO DOS IMÓVEIS -->
     <section class="card photo-card">
         <img src="casa_0.png" alt="Foto das Casas 15, 16 e 16A" class="photo-imoveis">
     </section>
@@ -47,7 +50,7 @@
             <span class="summary-value" id="summaryReceita">-</span>
         </div>
         <div class="summary-item blue">
-            <span class="summary-label">Imoveis Alugados</span>
+            <span class="summary-label">Imóveis Alugados</span>
             <span class="summary-value" id="summaryImoveis">-</span>
         </div>
         <div class="summary-item orange">
@@ -58,7 +61,7 @@
 
     <!-- TABELA PRINCIPAL -->
     <section class="card">
-        <h2 class="card-title">Quadro de Imoveis e Inquilinos</h2>
+        <h2 class="card-title">Quadro de Imóveis e Inquilinos</h2>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -68,7 +71,7 @@
                         <th>Dia de Pagamento</th>
                         <th>Inquilino</th>
                         <th>CPF</th>
-                        <th>Inicio</th>
+                        <th>Início</th>
                         <th>Fim</th>
                         <th>Finalidade</th>
                         <th>Status</th>
@@ -78,31 +81,31 @@
                 <tfoot id="mainTableFoot"></tfoot>
             </table>
         </div>
-        <p class="cpf-hint">* Clique no CPF para revelar/ocultar o numero completo</p>
+        <p class="cpf-hint">* Clique no CPF para revelar/ocultar o número completo</p>
     </section>
 
     <!-- OBSERVACOES -->
     <section class="card">
-        <h2 class="card-title">Observacoes</h2>
+        <h2 class="card-title">Observações</h2>
         <div class="obs-list" id="obsContainer"></div>
     </section>
 
     <!-- DETALHES DOS CONTRATOS -->
     <section class="card">
-        <h2 class="card-title">Situacao dos Contratos</h2>
+        <h2 class="card-title">Situação dos Contratos</h2>
         <div class="contratos-grid" id="contratosContainer"></div>
     </section>
 
     <!-- GRAFICO -->
     <section class="card">
-        <h2 class="card-title">Movimentacao Financeira</h2>
+        <h2 class="card-title">Movimentação Financeira</h2>
         <div id="graficoContainer"></div>
     </section>
 
     <!-- EXTRATO -->
     <section class="card">
         <div class="card-header-row">
-            <h2 class="card-title" style="margin-bottom:0">Extrato de Poupanca</h2>
+            <h2 class="card-title" style="margin-bottom:0">Extrato de Poupança</h2>
             <div class="extrato-nav">
                 <button class="btn-nav" onclick="changeExtrato(-1)">&#9664;</button>
                 <span id="extratoMesLabel">Fevereiro/2025</span>
@@ -115,7 +118,7 @@
                 <span class="extrato-valor" id="extSaldoAnt">-</span>
             </div>
             <div class="extrato-item">
-                <span class="extrato-label">Disponivel</span>
+                <span class="extrato-label">Disponível</span>
                 <span class="extrato-valor destaque" id="extDisponivel">-</span>
             </div>
         </div>
@@ -124,7 +127,7 @@
                 <thead>
                     <tr>
                         <th class="text-center">Dia</th>
-                        <th>Historico</th>
+                        <th>Histórico</th>
                         <th class="text-right">Valor</th>
                     </tr>
                 </thead>
@@ -136,8 +139,8 @@
 </main>
 
 <footer class="footer">
-    <p>Controle de Vencimentos - Alugueis &middot; Pagina de consulta</p>
-    <p class="footer-update">Ultima atualizacao: <strong id="lastUpdate"></strong></p>
+    <p>Controle de Vencimentos - Aluguéis &middot; Página de consulta</p>
+    <p class="footer-update">Última atualização: <strong id="lastUpdate"></strong></p>
 </footer>
 
 <script src="app.js"></script>
