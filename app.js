@@ -140,7 +140,7 @@ function parseImoveis(rows) {
         const temNota = inquilino.endsWith('*');
         if (temNota) inquilino = inquilino.slice(0, -1).trim();
 
-        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao: observacao || OBSERVACOES_IMOVEIS[casa] || '', link: link || LINKS_CONTRATOS[casa] || '', temNota, obsGeral });
+        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao: OBSERVACOES_IMOVEIS[casa] || '', link: link || LINKS_CONTRATOS[casa] || '', temNota, obsGeral });
     }
     return imoveis;
 }
