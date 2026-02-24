@@ -314,6 +314,8 @@ function renderGrafico() {
     html += '<span class="legenda-item"><span class="legenda-cor legenda-saldo"></span> Saldo</span>';
     html += '</div>';
 
+    const n = mesesData.length;
+
     html += '<div class="grafico-barras">';
     mesesData.forEach(m => {
         const entPct = (m.entradas / maxScale * 100).toFixed(1);
@@ -332,6 +334,32 @@ function renderGrafico() {
         </div>`;
     });
     html += '</div>';
+
+    // Linha de evolucao do saldo
+    const vbW = 600, svgH = 80, padT = 14, padB = 10, padS = 20;
+    const maxSaldo = Math.max(...mesesData.map(m => m.saldoFinal), 0);
+    const minSaldo = Math.min(...mesesData.map(m => m.saldoFinal), 0);
+    const sRange = (maxSaldo - minSaldo) || 1;
+    const pX = i => n === 1 ? vbW / 2 : padS + i * (vbW - 2 * padS) / (n - 1);
+    const pY = v => padT + (1 - (v - minSaldo) / sRange) * (svgH - padT - padB);
+    const pts = mesesData.map((m, i) => ({ x: pX(i), y: pY(m.saldoFinal), v: m.saldoFinal }));
+    const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const areaPath = linePath + ` L${pts[pts.length - 1].x.toFixed(1)},${svgH - padB} L${pts[0].x.toFixed(1)},${svgH - padB} Z`;
+
+    html += `<div class="grafico-linha-wrap">
+        <div class="grafico-linha-titulo">Evolucao do Saldo</div>
+        <svg viewBox="0 0 ${vbW} ${svgH}" preserveAspectRatio="none" class="grafico-linha-svg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="saldoGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.02"/>
+                </linearGradient>
+            </defs>
+            <path d="${areaPath}" fill="url(#saldoGrad)"/>
+            <path d="${linePath}" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            ${pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="var(--primary)" stroke="white" stroke-width="2" vector-effect="non-scaling-stroke"><title>R$ ${fmt(p.v)}</title></circle>`).join('')}
+        </svg>
+    </div>`;
 
     // Resumo do mes mais recente
     const ultimo = mesesData[mesesData.length - 1];
@@ -600,14 +628,28 @@ function renderAlertas() {
     imoveisData.forEach(im => {
         if (!isAtrasado(im)) return;
         alertas.push({
-            urgente: true,
+            tipo: 'urgente',
             texto: `<strong>Casa ${im.casa}</strong> - Aluguel de <strong>R$ ${fmt(im.valor)}</strong> com pagamento <strong>em atraso</strong> (vencimento dia ${im.dia}) - ${im.inquilino}`
         });
     });
 
+    const hoje = new Date();
+    imoveisData.forEach(im => {
+        if (!im.fim) return;
+        const p = im.fim.split('/');
+        const fim = new Date(p[2], p[1] - 1, p[0]);
+        const diasRestantes = Math.ceil((fim - hoje) / (1000 * 60 * 60 * 24));
+        if (diasRestantes > 0 && diasRestantes <= 90) {
+            alertas.push({
+                tipo: 'aviso',
+                texto: `<strong>Casa ${im.casa}</strong> - Contrato de <strong>${im.inquilino}</strong> vence em <strong>${im.fim}</strong> (${diasRestantes} dias restantes)`
+            });
+        }
+    });
+
     container.innerHTML = alertas.map(a => `
-        <div class="alerta alerta-urgente">
-            <span class="alerta-icon">&#9888;</span>
+        <div class="alerta alerta-${a.tipo}">
+            <span class="alerta-icon">${a.tipo === 'urgente' ? '&#9888;' : '&#128197;'}</span>
             <span class="alerta-text">${a.texto}</span>
         </div>
     `).join('');

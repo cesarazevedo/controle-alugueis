@@ -76,6 +76,7 @@ body.dark .barra-bg { background: #334155; }
 body.dark tfoot td { background: #283548; }
 body.dark .alerta { border-color: #451a03; background: #1c1a04; }
 body.dark .alerta.alerta-urgente { border-color: #450a0a; background: #1a0505; }
+body.dark .alerta.alerta-aviso { border-color: #431407; background: #1c0e04; }
 
 body.dark .photo-imoveis { opacity: 0.82; }
 
@@ -215,6 +216,11 @@ body {
 .alerta.alerta-urgente {
     border-color: #fca5a5;
     background: linear-gradient(135deg, #fff5f5, #fee2e2);
+}
+
+.alerta.alerta-aviso {
+    border-color: #fdba74;
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
 }
 
 .alerta-icon {
@@ -915,6 +921,27 @@ body.dark .btn-refresh:hover { background: rgba(255,255,255,0.1); }
 .grafico-resumo-valor {
     font-size: 0.98rem;
     font-weight: 700;
+}
+
+.grafico-linha-wrap {
+    margin: 6px 8px 0;
+    position: relative;
+}
+
+.grafico-linha-titulo {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.grafico-linha-svg {
+    width: 100%;
+    height: 80px;
+    display: block;
+    overflow: visible;
 }
 
 /* ===== PRINT ===== */
