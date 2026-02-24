@@ -7,7 +7,7 @@ const MESES = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Ago
 
 // ===== DADOS FALLBACK (caso a planilha nao carregue) =====
 const OBSERVACOES_IMOVEIS = {
-    '16A': 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel.'
+    '16A': 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel. Reformas realizadas: substituicao de pisos quebrados na sala, colocacao de piso na area de servico e no antigo quarto de taco, pintura e retirada de rachaduras.'
 };
 
 const LINKS_CONTRATOS = {
