@@ -7,9 +7,9 @@ const MESES = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Ago
 
 // ===== DADOS FALLBACK (caso a planilha nao carregue) =====
 const FALLBACK_IMOVEIS = [
-    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em dia', observacao: '', link: 'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/view?usp=sharing' },
-    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '04/04/2023', fim: '04/04/2026', finalidade: 'Comercial', status: 'Em atraso', observacao: '', link: 'https://drive.google.com/file/d/1nN08UnDJgL1gnPMONMRNkpMD3Ri_luMH/view?usp=sharing' },
-    { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel.', link: 'https://drive.google.com/file/d/1zqyteIDMU46qK8yz1nmKYxY_1dHtZAuJ/view?usp=sharing' }
+    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em dia', observacao: '', link: 'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/preview' },
+    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '04/04/2023', fim: '04/04/2026', finalidade: 'Comercial', status: 'Em atraso', observacao: '', link: 'https://drive.google.com/file/d/1nN08UnDJgL1gnPMONMRNkpMD3Ri_luMH/preview' },
+    { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel.', link: 'https://drive.google.com/file/d/1zqyteIDMU46qK8yz1nmKYxY_1dHtZAuJ/preview' }
 ];
 
 const FALLBACK_EXTRATOS = {
