@@ -566,6 +566,11 @@ function calcBarra(inicioStr, fimStr, barraId, diasId) {
     const pct = total > 0 ? (elapsed / total * 100) : 0;
     const restante = Math.max(0, Math.ceil((fim - hoje) / (1000*60*60*24)));
 
+    let anos = fim.getFullYear() - hoje.getFullYear();
+    let meses = fim.getMonth() - hoje.getMonth();
+    if (meses < 0) { anos--; meses += 12; }
+    if (anos < 0) { anos = 0; meses = 0; }
+
     const barra = document.getElementById(barraId);
     const dias = document.getElementById(diasId);
     if (barra) barra.style.width = pct.toFixed(1) + '%';
@@ -574,7 +579,13 @@ function calcBarra(inicioStr, fimStr, barraId, diasId) {
             dias.textContent = 'Encerrado';
             dias.style.color = '#c0392b';
         } else {
-            dias.textContent = restante + ' dias restantes';
+            let partes = [];
+            if (anos > 0) partes.push(anos + ' ano' + (anos > 1 ? 's' : ''));
+            if (meses > 0) partes.push(meses + ' mes' + (meses > 1 ? 'es' : ''));
+            const tempoLabel = partes.length > 0 ? partes.join(' e ') + ' restantes' : '';
+            dias.innerHTML = tempoLabel
+                ? tempoLabel + '<br><small style="font-weight:400;opacity:0.8">(' + restante + ' dias)</small>'
+                : restante + ' dias restantes';
             dias.style.color = restante < 90 ? '#c0392b' : restante < 180 ? '#e67e22' : '#7f8c8d';
             dias.style.fontWeight = restante < 90 ? '700' : '500';
         }
