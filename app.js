@@ -7,9 +7,9 @@ const MESES = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Ago
 
 // ===== DADOS FALLBACK (caso a planilha nao carregue) =====
 const FALLBACK_IMOVEIS = [
-    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em dia', observacao: '' },
-    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '04/04/2023', fim: '04/04/2026', finalidade: 'Comercial', status: 'Em atraso', observacao: '' },
-    { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: '' }
+    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em dia', observacao: '', link: 'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/view?usp=sharing' },
+    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '04/04/2023', fim: '04/04/2026', finalidade: 'Comercial', status: 'Em atraso', observacao: '', link: 'https://drive.google.com/file/d/1nN08UnDJgL1gnPMONMRNkpMD3Ri_luMH/view?usp=sharing' },
+    { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel.', link: 'https://drive.google.com/file/d/1zqyteIDMU46qK8yz1nmKYxY_1dHtZAuJ/view?usp=sharing' }
 ];
 
 const FALLBACK_EXTRATOS = {
@@ -125,11 +125,12 @@ function parseImoveis(rows) {
         const finalidade = (r[7] || '').trim();
         const status = (r[8] || '').trim();
         const observacao = (r[9] || '').trim();
+        const link = (r[10] || '').trim();
 
         const temNota = inquilino.endsWith('*');
         if (temNota) inquilino = inquilino.slice(0, -1).trim();
 
-        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao, temNota, obsGeral });
+        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao, link, temNota, obsGeral });
     }
     return imoveis;
 }
@@ -466,6 +467,10 @@ function renderMainTable() {
             ? '<span class="badge badge-comercial">Comercial</span>'
             : '<span class="badge badge-residencial">Residencial</span>';
 
+        const linkCell = im.link
+            ? `<a href="${im.link}" target="_blank" class="link-contrato" title="Ver contrato">&#128196; Ver</a>`
+            : '<span class="text-muted">—</span>';
+
         return `<tr class="${rowClass}">
             <td class="cell-casa"><strong>${im.casa}</strong></td>
             <td class="cell-valor">R$ ${fmt(im.valor)}</td>
@@ -475,6 +480,7 @@ function renderMainTable() {
             <td>${im.inicio}</td>
             <td>${im.fim}</td>
             <td>${finalBadge}</td>
+            <td class="text-center">${linkCell}</td>
             <td>${statusBadge}</td>
         </tr>`;
     }).join('');
@@ -492,16 +498,16 @@ function renderObservacoes() {
     const items = [];
 
     imoveisData.forEach(im => {
-        if (im.temNota && im.obsGeral) {
-            items.push(`<div class="obs-item obs-desconto">
-                <span class="obs-icon">*</span>
-                <div>
-                    <strong>Casa ${im.casa} - ${im.inquilino}</strong>
-                    <p>${im.obsGeral}</p>
-                    <div class="desconto-countdown" id="descontoCountdown"></div>
-                </div>
-            </div>`);
-        }
+        const texto = im.observacao || (im.temNota ? im.obsGeral : '');
+        if (!texto) return;
+        items.push(`<div class="obs-item obs-desconto">
+            <span class="obs-icon">*</span>
+            <div>
+                <strong>Casa ${im.casa} - ${im.inquilino}</strong>
+                <p>${texto}</p>
+                <div class="desconto-countdown" id="descontoCountdown"></div>
+            </div>
+        </div>`);
     });
 
     imoveisData.forEach(im => {

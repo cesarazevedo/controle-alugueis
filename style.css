@@ -923,6 +923,25 @@ body.dark .btn-refresh:hover { background: rgba(255,255,255,0.1); }
     font-weight: 700;
 }
 
+.link-contrato {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.link-contrato:hover {
+    background: color-mix(in srgb, var(--primary) 20%, transparent);
+    color: var(--primary-dark, var(--primary));
+}
+
 .grafico-linha-wrap {
     margin: 6px 8px 0;
     position: relative;
