@@ -20,7 +20,20 @@ const FALLBACK_EXTRATOS = {
             { dia: 3, historico: 'Juros', valor: 0.33 },
             { dia: 4, historico: 'Pagamento Conta De Agua', valor: -672.81 },
             { dia: 4, historico: 'Pix - Recebido 04/02 22:07', detalhe: 'DENIS ULISSE N', valor: 312.00 },
-            { dia: 12, historico: 'Pix - Recebido 12/02 14:25', detalhe: 'DENIS ULISSE', valor: 727.00 }
+            { dia: 12, historico: 'Pix - Recebido 12/02 14:25', detalhe: 'DENIS ULISSE', valor: 727.00 },
+            { dia: 18, historico: 'Juros', valor: 1.02 },
+            { dia: 18, historico: 'Reajuste Monetario - BACEN', valor: 0.35 },
+            { dia: 18, historico: 'Juros', valor: 11.37 },
+            { dia: 18, historico: 'Reajuste Monetario - BACEN', valor: 3.94 },
+            { dia: 18, historico: 'Juros', valor: 1.29 },
+            { dia: 18, historico: 'Reajuste Monetario - BACEN', valor: 0.44 },
+            { dia: 23, historico: 'Juros', valor: 3.61 },
+            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 1.13 },
+            { dia: 23, historico: 'Juros', valor: 2.84 },
+            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 0.96 },
+            { dia: 23, historico: 'Pix - Recebido 23/02 12:14', detalhe: 'DENIS ULISS', valor: 720.00 },
+            { dia: 24, historico: 'Juros', valor: 3.40 },
+            { dia: 24, historico: 'Reajuste Monetario - BACEN', valor: 1.06 }
         ]
     }
 };
@@ -383,11 +396,19 @@ function cpfMasked(cpf) {
 
 // ===== SUMMARY =====
 function renderSummary() {
-    const totalReceita = imoveisData.reduce((s, im) => s + im.valor, 0);
     const totalImoveis = imoveisData.length;
     const totalAtraso = imoveisData.filter(im => isAtrasado(im)).length;
 
-    document.getElementById('summaryReceita').textContent = 'R$ ' + fmt(totalReceita);
+    const keys = Object.keys(extratosData).sort();
+    let saldoDisp = null;
+    if (keys.length > 0) {
+        const ext = extratosData[keys[keys.length - 1]];
+        let total = ext.saldoAnterior;
+        ext.lancamentos.forEach(l => { total += l.valor; });
+        saldoDisp = total;
+    }
+
+    document.getElementById('summaryDisponivel').textContent = saldoDisp !== null ? 'R$ ' + fmt(saldoDisp) : '-';
     document.getElementById('summaryImoveis').textContent = totalImoveis;
     document.getElementById('summaryAtraso').textContent = totalAtraso;
 }
