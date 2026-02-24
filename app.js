@@ -6,6 +6,10 @@ const EXTRATO_CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID
 const MESES = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 // ===== DADOS FALLBACK (caso a planilha nao carregue) =====
+const OBSERVACOES_IMOVEIS = {
+    '16A': 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel.'
+};
+
 const LINKS_CONTRATOS = {
     '15':  'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/preview',
     '16':  'https://drive.google.com/file/d/1nN08UnDJgL1gnPMONMRNkpMD3Ri_luMH/preview',
@@ -136,7 +140,7 @@ function parseImoveis(rows) {
         const temNota = inquilino.endsWith('*');
         if (temNota) inquilino = inquilino.slice(0, -1).trim();
 
-        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao, link: link || LINKS_CONTRATOS[casa] || '', temNota, obsGeral });
+        imoveis.push({ casa, valor, dia, inquilino, cpf, inicio, fim, finalidade, status, observacao: observacao || OBSERVACOES_IMOVEIS[casa] || '', link: link || LINKS_CONTRATOS[casa] || '', temNota, obsGeral });
     }
     return imoveis;
 }
@@ -504,7 +508,7 @@ function renderObservacoes() {
     const items = [];
 
     imoveisData.forEach(im => {
-        const texto = im.observacao || (im.temNota ? im.obsGeral : '');
+        const texto = im.observacao;
         if (!texto) return;
         items.push(`<div class="obs-item obs-desconto">
             <span class="obs-icon">*</span>
