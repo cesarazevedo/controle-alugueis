@@ -52,6 +52,7 @@ const FALLBACK_EXTRATOS = {
     '2026-04': {
         saldoAnterior: 4249.22,
         lancamentos: [
+            { dia: 13, historico: 'Juros e Reajustes - BACEN (1-13/abr)', valor: 167.88 },
             { dia: 14, historico: 'Reajuste Monetario - BACEN', valor: 1.47 },
             { dia: 14, historico: 'Juros', valor: 4.29 },
             { dia: 14, historico: 'Pix - Recebido 14/04 15:15', detalhe: 'DENIS ULISSE N', valor: 720.00 },
