@@ -12,17 +12,29 @@ const OBSERVACOES_IMOVEIS = {
 
 const LINKS_CONTRATOS = {
     '15':  'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/preview',
-    '16':  'https://drive.google.com/file/d/1nN08UnDJgL1gnPMONMRNkpMD3Ri_luMH/preview',
+    '16':  'https://drive.google.com/file/d/14lMqyhV9Mhf8aHd4EtSQ0G1AFR7yIgh7/preview',
     '16A': 'https://drive.google.com/file/d/1zqyteIDMU46qK8yz1nmKYxY_1dHtZAuJ/preview'
 };
 
 const FALLBACK_IMOVEIS = [
-    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em dia', observacao: '', link: 'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/preview' },
-    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '04/04/2023', fim: '04/04/2026', finalidade: 'Comercial', status: 'Em atraso', observacao: '', link: 'https://drive.google.com/file/d/1nN08UnDJgL1gnPMONMRNkpMD3Ri_luMH/preview' },
+    { casa: '15', valor: 630, dia: 14, inquilino: 'Luis Felipe da Silva Medeiros', cpf: '134.162.744-66', inicio: '13/11/2025', fim: '13/11/2026', finalidade: 'Residencial', status: 'Em atraso', observacao: '', link: 'https://drive.google.com/file/d/1dawPSTDvelJcjeT3AcvaQhaTS3jt1svX/preview' },
+    { casa: '16', valor: 720, dia: 10, inquilino: 'Pedro Elandro Holanda Granjeiro', cpf: '104.295.114-42', inicio: '10/04/2026', fim: '10/04/2027', finalidade: 'Comercial', status: 'Em dia', observacao: '', link: 'https://drive.google.com/file/d/14lMqyhV9Mhf8aHd4EtSQ0G1AFR7yIgh7/preview' },
     { casa: '16A', valor: 306, dia: 5, inquilino: 'Humberto de Oliveira Nunes', cpf: '653.396.814-91', inicio: '30/06/2025', fim: '30/06/2027', finalidade: 'Residencial', status: 'Com desconto', observacao: 'Devido a reforma realizada no imovel, o inquilino esta com 50% de desconto no aluguel.', link: 'https://drive.google.com/file/d/1zqyteIDMU46qK8yz1nmKYxY_1dHtZAuJ/preview' }
 ];
 
 const FALLBACK_EXTRATOS = {
+    '2026-01': {
+        saldoAnterior: 3702.84,
+        lancamentos: [
+            { dia: 21, historico: 'Reajuste Monetario - BACEN', valor: 0.97 },
+            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 1.25 },
+            { dia: 23, historico: 'Juros', valor: 3.63 },
+            { dia: 23, historico: 'Pix - Recebido 23/01 15:29', detalhe: 'DENIS ULISSE N', valor: 720.00 },
+            { dia: 29, historico: 'Pix - Enviado 29/01 16:56', detalhe: 'Francisco Edilson da Silv', valor: -50.00 },
+            { dia: 30, historico: 'Reajuste Monetario - BACEN', valor: 0.54 },
+            { dia: 30, historico: 'Juros', valor: 1.57 }
+        ]
+    },
     '2026-02': {
         saldoAnterior: 5081.08,
         lancamentos: [
@@ -44,6 +56,18 @@ const FALLBACK_EXTRATOS = {
             { dia: 23, historico: 'Pix - Recebido 23/02 12:14', detalhe: 'DENIS ULISS', valor: 720.00 },
             { dia: 24, historico: 'Juros', valor: 3.40 },
             { dia: 24, historico: 'Reajuste Monetario - BACEN', valor: 1.06 }
+        ]
+    },
+    '2026-04': {
+        saldoAnterior: 4249.22,
+        lancamentos: [
+            { dia: 14, historico: 'Reajuste Monetario - BACEN', valor: 1.47 },
+            { dia: 14, historico: 'Juros', valor: 4.29 },
+            { dia: 14, historico: 'Pix - Recebido 14/04 15:15', detalhe: 'DENIS ULISSE N', valor: 720.00 },
+            { dia: 16, historico: 'Reajuste Monetario - BACEN', valor: 0.36 },
+            { dia: 16, historico: 'Juros', valor: 1.03 },
+            { dia: 17, historico: 'Reajuste Monetario - BACEN', valor: 1.54 },
+            { dia: 17, historico: 'Juros', valor: 4.46 }
         ]
     }
 };
