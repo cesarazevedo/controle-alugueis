@@ -216,10 +216,9 @@ async function fetchPlanilha() {
     try {
         if (loading) loading.style.display = 'flex';
 
-        // Busca imoveis e extrato em paralelo
-        const [imoveisResp, extratoResp] = await Promise.allSettled([
-            fetch(CSV_URL).then(r => { if (!r.ok) throw new Error(); return r.text(); }),
-            fetch(EXTRATO_CSV_URL).then(r => { if (!r.ok) throw new Error(); return r.text(); })
+        // Busca apenas imoveis da planilha; extrato sempre via fallback local
+        const [imoveisResp] = await Promise.allSettled([
+            fetch(CSV_URL).then(r => { if (!r.ok) throw new Error(); return r.text(); })
         ]);
 
         // Processa imoveis
@@ -235,30 +234,19 @@ async function fetchPlanilha() {
             imoveisData = FALLBACK_IMOVEIS;
         }
 
-        // Processa extrato
-        if (extratoResp.status === 'fulfilled') {
-            const rows = parseCSV(extratoResp.value);
-            const parsed = parseExtratos(rows);
-            if (Object.keys(parsed).length > 0) {
-                extratosData = parsed;
-                onlineExtrato = true;
-                // Navega para o mes mais recente do extrato
-                const keys = Object.keys(parsed).sort();
-                if (keys.length > 0) {
-                    const last = keys[keys.length - 1];
-                    const parts = last.split('-');
-                    extratoAno = parseInt(parts[0]);
-                    extratoMes = parseInt(parts[1]) - 1;
-                }
-            }
-        }
-        if (!onlineExtrato) {
-            extratosData = FALLBACK_EXTRATOS;
+        // Extrato sempre local
+        extratosData = FALLBACK_EXTRATOS;
+        const keys = Object.keys(extratosData).sort();
+        if (keys.length > 0) {
+            const last = keys[keys.length - 1];
+            const parts = last.split('-');
+            extratoAno = parseInt(parts[0]);
+            extratoMes = parseInt(parts[1]) - 1;
         }
 
         lastFetchTime = new Date();
         renderAll();
-        showDataSource(onlineImoveis && onlineExtrato);
+        showDataSource(onlineImoveis);
     } catch (err) {
         console.warn('Erro ao carregar planilha:', err);
         imoveisData = FALLBACK_IMOVEIS;
