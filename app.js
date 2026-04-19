@@ -38,24 +38,15 @@ const FALLBACK_EXTRATOS = {
     '2026-02': {
         saldoAnterior: 5081.08,
         lancamentos: [
-            { dia: 3, historico: 'Reajuste Monetario - BACEN', valor: 0.12 },
-            { dia: 3, historico: 'Juros', valor: 0.33 },
-            { dia: 4, historico: 'Pagamento Conta De Agua', valor: -672.81 },
-            { dia: 4, historico: 'Pix - Recebido 04/02 22:07', detalhe: 'DENIS ULISSE N', valor: 312.00 },
-            { dia: 12, historico: 'Pix - Recebido 12/02 14:25', detalhe: 'DENIS ULISSE', valor: 727.00 },
-            { dia: 18, historico: 'Juros', valor: 1.02 },
-            { dia: 18, historico: 'Reajuste Monetario - BACEN', valor: 0.35 },
-            { dia: 18, historico: 'Juros', valor: 11.37 },
-            { dia: 18, historico: 'Reajuste Monetario - BACEN', valor: 3.94 },
-            { dia: 18, historico: 'Juros', valor: 1.29 },
-            { dia: 18, historico: 'Reajuste Monetario - BACEN', valor: 0.44 },
-            { dia: 23, historico: 'Juros', valor: 3.61 },
-            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 1.13 },
-            { dia: 23, historico: 'Juros', valor: 2.84 },
-            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 0.96 },
+            { dia: 20, historico: 'Reajuste Monetario - BACEN', valor: 0.96 },
+            { dia: 20, historico: 'Juros', valor: 2.84 },
+            { dia: 20, historico: 'Reajuste Monetario - BACEN', valor: 1.13 },
+            { dia: 20, historico: 'Juros', valor: 3.61 },
+            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 1.06 },
+            { dia: 23, historico: 'Juros', valor: 3.40 },
             { dia: 23, historico: 'Pix - Recebido 23/02 12:14', detalhe: 'DENIS ULISS', valor: 720.00 },
-            { dia: 24, historico: 'Juros', valor: 3.40 },
-            { dia: 24, historico: 'Reajuste Monetario - BACEN', valor: 1.06 }
+            { dia: 27, historico: 'Reajuste Monetario - BACEN', valor: 0.03 },
+            { dia: 27, historico: 'Juros', valor: 0.11 }
         ]
     },
     '2026-04': {
