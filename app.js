@@ -217,57 +217,28 @@ function parseExtratos(rows) {
     return result;
 }
 
-// ===== FETCH PLANILHA =====
+// ===== INICIALIZA DADOS LOCAIS =====
 async function fetchPlanilha() {
     const loading = document.getElementById('loadingOverlay');
-    let onlineImoveis = false;
-    let onlineExtrato = false;
+    if (loading) loading.style.display = 'flex';
 
-    try {
-        if (loading) loading.style.display = 'flex';
+    imoveisData = FALLBACK_IMOVEIS;
+    extratosData = FALLBACK_EXTRATOS;
 
-        // Busca apenas imoveis da planilha; extrato sempre via fallback local
-        const [imoveisResp] = await Promise.allSettled([
-            fetch(CSV_URL).then(r => { if (!r.ok) throw new Error(); return r.text(); })
-        ]);
-
-        // Processa imoveis
-        if (imoveisResp.status === 'fulfilled') {
-            const rows = parseCSV(imoveisResp.value);
-            const parsed = parseImoveis(rows);
-            if (parsed.length > 0) {
-                imoveisData = parsed;
-                onlineImoveis = true;
-            }
-        }
-        if (!onlineImoveis) {
-            imoveisData = FALLBACK_IMOVEIS;
-        }
-
-        // Extrato sempre local
-        extratosData = FALLBACK_EXTRATOS;
-        const keys = Object.keys(extratosData).sort();
-        if (keys.length > 0) {
-            const last = keys[keys.length - 1];
-            const parts = last.split('-');
-            extratoAno = parseInt(parts[0]);
-            extratoMes = parseInt(parts[1]) - 1;
-        }
-
-        lastFetchTime = new Date();
-        renderAll();
-        showDataSource(onlineImoveis);
-    } catch (err) {
-        console.warn('Erro ao carregar planilha:', err);
-        imoveisData = FALLBACK_IMOVEIS;
-        extratosData = FALLBACK_EXTRATOS;
-        lastFetchTime = new Date();
-        renderAll();
-        showDataSource(false);
-    } finally {
-        if (loading) loading.style.display = 'none';
-        isRefreshing = false;
+    const keys = Object.keys(extratosData).sort();
+    if (keys.length > 0) {
+        const last = keys[keys.length - 1];
+        const parts = last.split('-');
+        extratoAno = parseInt(parts[0]);
+        extratoMes = parseInt(parts[1]) - 1;
     }
+
+    lastFetchTime = new Date();
+    renderAll();
+    showDataSource(false);
+
+    if (loading) loading.style.display = 'none';
+    isRefreshing = false;
 }
 
 async function refreshData() {
@@ -289,13 +260,8 @@ function showDataSource(online) {
     const el = document.getElementById('dataSource');
     if (!el) return;
     const timeStr = lastFetchTime ? lastFetchTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
-    if (online) {
-        el.innerHTML = `<span class="source-dot source-online"></span> Dados carregados da planilha Google Sheets <span class="source-time">as ${timeStr}</span> <button class="btn-refresh" id="btnRefresh" onclick="refreshData()" title="Atualizar dados">&#8635; Atualizar</button>`;
-        el.className = 'data-source data-source-online';
-    } else {
-        el.innerHTML = `<span class="source-dot source-offline"></span> Usando dados locais (planilha indisponivel) <button class="btn-refresh" id="btnRefresh" onclick="refreshData()" title="Tentar novamente">&#8635; Tentar novamente</button>`;
-        el.className = 'data-source data-source-offline';
-    }
+    el.innerHTML = `<span class="source-dot source-online"></span> Dados atualizados <span class="source-time">as ${timeStr}</span> <button class="btn-refresh" id="btnRefresh" onclick="refreshData()" title="Atualizar dados">&#8635; Atualizar</button>`;
+    el.className = 'data-source data-source-online';
 }
 
 // ===== RENDER ALL =====
