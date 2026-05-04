@@ -59,14 +59,25 @@ const FALLBACK_EXTRATOS = {
             { dia: 6,  historico: 'Pix - Recebido', valor: 312.00 },
             { dia: 13, historico: 'Reajuste Monetario - BACEN', valor: 0.74 },
             { dia: 13, historico: 'Juros', valor: 2.16 },
-            { dia: 14, historico: 'Reajuste Monetario - BACEN', valor: 1.47 },
-            { dia: 14, historico: 'Juros', valor: 4.29 },
+            { dia: 15, historico: 'Reajuste Monetario - BACEN', valor: 1.47 },
+            { dia: 15, historico: 'Juros', valor: 4.29 },
             { dia: 14, historico: 'Pix - Recebido 14/04 15:15', detalhe: 'DENIS ULISSE N', valor: 720.00 },
             { dia: 17, historico: 'Reajuste Monetario - BACEN', valor: 0.36 },
             { dia: 17, historico: 'Juros', valor: 1.03 },
             { dia: 20, historico: 'Reajuste Monetario - BACEN', valor: 1.54 },
             { dia: 20, historico: 'Juros', valor: 4.46 },
-            { dia: 20, historico: 'Pix - Recebido 20/04', detalhe: 'Luis Felipe da Silva Medeiros', valor: 630.00 }
+            { dia: 20, historico: 'Pix - Enviado', valor: -1000.00 },
+            { dia: 20, historico: 'Pix - Enviado', valor: -1000.00 },
+            { dia: 20, historico: 'Pix - Enviado', valor: -1000.00 },
+            { dia: 20, historico: 'Transferencia Para Conta', valor: -1000.00 },
+            { dia: 20, historico: 'Reajuste Monetario - BACEN', valor: 0.97 },
+            { dia: 20, historico: 'Juros', valor: 2.88 },
+            { dia: 20, historico: 'Pix - Recebido 20/04', detalhe: 'Luis Felipe da Silva Medeiros', valor: 630.00 },
+            { dia: 22, historico: 'Pix - Recebido', valor: 97.00 },
+            { dia: 23, historico: 'Reajuste Monetario - BACEN', valor: 0.98 },
+            { dia: 23, historico: 'Juros', valor: 2.88 },
+            { dia: 24, historico: 'Reajuste Monetario - BACEN', valor: 1.07 },
+            { dia: 24, historico: 'Juros', valor: 3.15 }
         ]
     }
 };
